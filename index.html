@@ -1,115 +1,113 @@
- 1 <!DOCTYPE html>
-    2 <html lang="zh-CN">
-    3 <head>
-    4   <meta charset="UTF-8">
-    5   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    6   <title>欢迎</title>
-    7   <style>
-    8     * {
-    9       margin: 0;
-   10       padding: 0;
-   11       box-sizing: border-box;
-   12     }
-   13
-   14     body {
-   15       min-height: 100vh;
-   16       display: flex;
-   17       justify-content: center;
-   18       align-items: center;
-   19       background: #f5f5f5;
-   20       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-   21         "Microsoft YaHei", sans-serif;
-   22       color: #333;
-   23     }
-   24
-   25     .card {
-   26       background: #fff;
-   27       padding: 48px 40px;
-   28       border-radius: 12px;
-   29       box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-   30       text-align: center;
-   31       max-width: 420px;
-   32       width: 90%;
-   33     }
-   34
-   35     .card h1 {
-   36       font-size: 1.15rem;
-   37       font-weight: 400;
-   38       color: #555;
-   39       line-height: 1.8;
-   40       margin-bottom: 28px;
-   41     }
-   42
-   43     .card input {
-   44       width: 100%;
-   45       padding: 12px 16px;
-   46       border: 1px solid #e0e0e0;
-   47       border-radius: 8px;
-   48       font-size: 1rem;
-   49       text-align: center;
-   50       outline: none;
-   51       transition: border-color 0.2s;
-   52       color: #333;
-   53     }
-   54
-   55     .card input:focus {
-   56       border-color: #aaa;
-   57     }
-   58
-   59     .card input::placeholder {
-   60       color: #ccc;
-   61     }
-   62
-   63     .card button {
-   64       margin-top: 16px;
-   65       width: 100%;
-   66       padding: 12px 0;
-   67       border: none;
-   68       border-radius: 8px;
-   69       background: #333;
-   70       color: #fff;
-   71       font-size: 0.95rem;
-   72       cursor: pointer;
-   73       transition: background 0.2s;
-   74     }
-   75
-   76     .card button:hover {
-   77       background: #555;
-   78     }
-   79   </style>
-   80 </head>
-   81 <body>
-   82   <div class="card">
-   83     <h1>欢迎光临本页面<br>请输入您的生日XD<br>（请输入数字哦）</h1>
-   84     <input
-   85       id="birthday"
-   86       type="text"
-   87       placeholder="例如：0814"
-   88       autocomplete="off"
-   89     />
-   90     <button id="submit">确认</button>
-   91   </div>
-   92
-   93   <script>
-   94     const VALID = ['2004/08/14', '0814', '814', '040814'];
-   93   <script>
-   94     const VALID = ['2004/08/14', '0814', '814', '040814'];
-   95     const input = document.getElementById('birthday');
-   96     const btn = document.getElementById('submit');
-   97
-   98     function check() {
-   99       const val = input.value.trim();
-  100       if (VALID.includes(val)) {
-  101         window.location.href = 'mian.html';
-  102       } else {
-  103         alert('对不起，您没有被邀请噢:/');
-  104       }
-  105     }
-  106
-  107     btn.addEventListener('click', check);
-  108     input.addEventListener('keydown', function (e) {
-  109       if (e.key === 'Enter') check();
-  110     });
-  111   </script>
-  112 </body>
-  113 </html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>欢迎</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+      color: #333;
+    }
+
+    .card {
+      background: #fff;
+      padding: 48px 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .card h1 {
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+
+    .card input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+      color: #333;
+    }
+
+    .card input:focus {
+      border-color: #aaa;
+    }
+
+    .card input::placeholder {
+      color: #ccc;
+    }
+
+    .card button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px 0;
+      border: none;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .card button:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>欢迎光临本页面<br>请输入您的生日XD<br>（请输入数字哦）</h1>
+    <input
+      id="birthday"
+      type="text"
+      placeholder="例如：0814"
+      autocomplete="off"
+    />
+    <button id="submit">确认</button>
+  </div>
+
+  <script>
+    const VALID = ['2004/08/14', '0814', '814', '040814'];
+    const input = document.getElementById('birthday');
+    const btn = document.getElementById('submit');
+
+    function check() {
+      const val = input.value.trim();
+      if (VALID.includes(val)) {
+        window.location.href = 'main.html';
+      } else {
+        alert('对不起，您没有被邀请噢:/');
+      }
+    }
+
+    btn.addEventListener('click', check);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') check();
+    });
+  </script>
+</body>
+</html>
