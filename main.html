@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -53,16 +52,47 @@
     <p>很高兴见到你<br>这里什么也没有，只有一份小小的祝福 ✨</p>
   </div>
 
-  <audio id="bgm" src="meet me in the afterlife.mp4" loop></audio>
+  <audio id="bgm" src="meet%20me%20in%20the%20afterlife.mp4" loop preload="auto"></audio>
 
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       var audio = document.getElementById('bgm');
+
+      // 尝试通过 Web Audio API GainNode 做可靠的音量衰减（不依赖系统音量）
+      var gainNode = null;
+      var audioCtx = null;
+
+      function setupGainNode() {
+        if (gainNode) return; // 已经初始化过了
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          var source = audioCtx.createMediaElementSource(audio);
+          gainNode = audioCtx.createGain();
+          gainNode.gain.value = 0.01; // 1% 增益，实现极低音量
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+        } catch (e) {
+          // Web Audio API 不可用时回退到 element.volume
+          audio.volume = 0.01;
+        }
+      }
+
+      function startPlay() {
+        // 在用户手势触发的调用中初始化 GainNode（确保 AudioContext 能被创建）
+        setupGainNode();
+        audio.play().catch(function (err) {
+          console.warn('播放失败:', err.message);
+        });
+      }
+
+      // 尽早设置 element.volume 作为保底
       audio.volume = 0.01;
+
+      // 首次尝试自动播放
       audio.play().catch(function () {
-        // 浏览器自动播放策略限制时，点击页面任意位置开始播放
+        // 自动播放被阻止，等待用户首次点击（点击中初始化 GainNode 更可靠）
         document.addEventListener('click', function playOnce() {
-          audio.play();
+          startPlay();
           document.removeEventListener('click', playOnce);
         }, { once: true });
       });
