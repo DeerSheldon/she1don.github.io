@@ -44,17 +44,105 @@
       color: #999;
       line-height: 1.8;
     }
+
+    .typewriter-wrap {
+      margin-top: 18px;
+      min-height: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .typewriter {
+      font-size: 0.95rem;
+      color: #888;
+      display: inline;
+    }
+
+    .typewriter-cursor {
+      display: inline-block;
+      width: 1px;
+      height: 1em;
+      background: #555;
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.8s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>🎂 欢迎光临 8w8 </h1>
+    <h1>🎂 欢迎光临 :)</h1>
     <p>很高兴见到你<br>这里什么也没有，只有一份小小的祝福 ✨</p>
+    <div class="typewriter-wrap">
+      <span class="typewriter" id="typewriter"></span><span class="typewriter-cursor"></span>
+    </div>
   </div>
 
   <audio id="bgm" src="meet%20me%20in%20the%20afterlife.mp4" loop preload="auto"></audio>
 
   <script>
+    // ========== 打字机效果 ==========
+    (function () {
+      var el = document.getElementById('typewriter');
+      var phrases = [
+        '今天是个特别的日子 🌟',
+        '愿你永远被世界温柔以待 💫',
+        '生日快乐呀 🎂',
+        '希望你每天都有好心情 ☀️',
+        '谢谢你来过我的世界 ✨'
+      ];
+      var index = 0;        // 当前第几句
+      var charIndex = 0;    // 当前已显示/删除到第几个字
+      var isDeleting = false;
+      var typeSpeed = 120;  // 打字速度 (ms/字)
+      var deleteSpeed = 60; // 删除速度 = 打字速度的一半 (双倍快)
+      var pauseEnd = 2000;  // 打完后的停留时间
+      var pauseStart = 600; // 删完后到下一句的间隔
+
+      function tick() {
+        var text = phrases[index];
+
+        if (!isDeleting) {
+          // 正在打字
+          charIndex++;
+          el.textContent = text.slice(0, charIndex);
+
+          if (charIndex === text.length) {
+            // 一句打完，停留后开始删除
+            isDeleting = true;
+            setTimeout(tick, pauseEnd);
+            return;
+          }
+
+          setTimeout(tick, typeSpeed);
+        } else {
+          // 正在删除
+          charIndex--;
+          el.textContent = text.slice(0, charIndex);
+
+          if (charIndex === 0) {
+            // 全部删除完毕，切到下一句开始打字
+            isDeleting = false;
+            index = (index + 1) % phrases.length;
+            setTimeout(tick, pauseStart);
+            return;
+          }
+
+          setTimeout(tick, deleteSpeed);
+        }
+      }
+
+      // 页面加载后稍作延迟再启动
+      setTimeout(tick, 600);
+    })();
+
+    // ========== 音频播放 ==========
     window.addEventListener('DOMContentLoaded', function () {
       var audio = document.getElementById('bgm');
 
@@ -68,12 +156,12 @@
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           var source = audioCtx.createMediaElementSource(audio);
           gainNode = audioCtx.createGain();
-          gainNode.gain.value = 0.2; // 1% 增益，实现极低音量
+          gainNode.gain.value = 0.4; // 1% 增益，实现极低音量
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);
         } catch (e) {
           // Web Audio API 不可用时回退到 element.volume
-          audio.volume = 0.2;
+          audio.volume = 0.4;
         }
       }
 
@@ -86,7 +174,7 @@
       }
 
       // 尽早设置 element.volume 作为保底
-      audio.volume = 0.2;
+      audio.volume = 0.4;
 
       // 首次尝试自动播放
       audio.play().catch(function () {
