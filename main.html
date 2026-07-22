@@ -68,7 +68,7 @@
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           var source = audioCtx.createMediaElementSource(audio);
           gainNode = audioCtx.createGain();
-          gainNode.gain.value = 0.01; // 1% 增益，实现极低音量
+          gainNode.gain.value = 0.4; // 1% 增益，实现极低音量
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);
         } catch (e) {
