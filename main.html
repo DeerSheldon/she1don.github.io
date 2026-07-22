@@ -58,6 +58,7 @@
   <script>
     window.addEventListener('DOMContentLoaded', function () {
       var audio = document.getElementById('bgm');
+      audio.volume = 0.3;
       audio.play().catch(function () {
         // 浏览器自动播放策略限制时，点击页面任意位置开始播放
         document.addEventListener('click', function playOnce() {
