@@ -73,7 +73,7 @@
           gainNode.connect(audioCtx.destination);
         } catch (e) {
           // Web Audio API 不可用时回退到 element.volume
-          audio.volume = 0.01;
+          audio.volume = 0.4;
         }
       }
 
