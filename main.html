@@ -61,7 +61,37 @@
     }
 
     /* ============================================================
-       SWIPE HINT
+       LOADING & COUNTDOWN OVERLAY
+    ============================================================ */
+    #loadingOverlay {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 30;
+      text-align: center;
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      pointer-events: none;
+      transition: opacity 0.6s;
+    }
+    #loadingOverlay.fadeout {
+      opacity: 0;
+    }
+    #loadingSpinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loadingText {
+      letter-spacing: 2px;
+    }
+
+    /* ============================================================
+       SWIPE HINT — hidden until 15s elapsed
     ============================================================ */
     #swipeHint {
       position: fixed;
@@ -76,18 +106,27 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      opacity: 0;
+      transition: opacity 0.8s;
+    }
+
+    #swipeHint.show {
+      opacity: 1;
       animation: hintPulse 2s ease-in-out infinite;
+    }
+
+    #swipeHint.exited {
+      opacity: 0;
+      transition: opacity 0.5s;
     }
 
     #swipeHint .arrow-icon {
       display: inline-block;
       font-size: 1.5rem;
-      animation: arrowSlide 1.2s ease-in-out infinite;
     }
 
-    #swipeHint.hidden {
-      opacity: 0;
-      transition: opacity 0.5s;
+    #swipeHint.show .arrow-icon {
+      animation: arrowSlide 1.2s ease-in-out infinite;
     }
 
     @keyframes hintPulse {
@@ -626,7 +665,15 @@
   <div id="videoFallback"></div>
 
   <!-- ============================================================
-       SWIPE HINT
+       LOADING OVERLAY
+  ============================================================ -->
+  <div id="loadingOverlay">
+    <div id="loadingSpinner"></div>
+    <div id="loadingText">正在加载...</div>
+  </div>
+
+  <!-- ============================================================
+       SWIPE HINT — hidden until 15s after playback starts
   ============================================================ -->
   <div id="swipeHint">
     <span class="arrow-icon">→</span> 向右滑动
@@ -811,6 +858,9 @@
     var videoFallback  = document.getElementById('videoFallback');
     var swipeHint      = document.getElementById('swipeHint');
     var mainWrapper    = document.getElementById('mainWrapper');
+    var loadingOverlay = document.getElementById('loadingOverlay');
+    var loadingText    = document.getElementById('loadingText');
+    var loadingSpinner = document.getElementById('loadingSpinner');
     var audioEl        = document.getElementById('audioPlayer');
     var miniDisc       = document.getElementById('miniDisc');
     var miniCover      = document.getElementById('miniCover');
@@ -837,6 +887,13 @@
     var isDragging    = false;
     var isPlaylistOpen = false;
     var transitioned  = false;
+
+    // Loading & swipe gate
+    var videoLoaded   = false;
+    var playlistReady = false;
+    var allReady      = false;       // both video + playlist loaded
+    var readyTime     = 0;           // Date.now() when playback started
+    var SWIPE_DELAY   = 15000;       // 15 seconds before swipe allowed
 
     // ============================================================
     //  UTILS
@@ -989,17 +1046,21 @@
     }
 
     // ============================================================
-    //  SWIPE / DRAG — right-swipe from page 1 to page 2 (one-way)
+    //  SWIPE / DRAG — blocked for first 15s of playback
     // ============================================================
     var swipeStartX = 0;
     var swipeCurX   = 0;
     var swiping     = false;
     var SWIPE_THRESHOLD = 0.25;
 
+    function swipeAllowed() {
+      return allReady && (Date.now() - readyTime >= SWIPE_DELAY);
+    }
+
     function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
 
     function onStart(e) {
-      if (transitioned) return;
+      if (transitioned || !swipeAllowed()) return;
       swiping = true;
       swipeStartX = getX(e); swipeCurX = swipeStartX;
       if (bgVideo && !bgVideo.paused) { bgVideo.pause(); }
@@ -1043,7 +1104,7 @@
       bgVideo.classList.add('exited');
       if (videoFallback) videoFallback.classList.add('exited');
       mainWrapper.classList.add('entered');
-      swipeHint.classList.add('hidden');
+      swipeHint.classList.add('exited');
       mainWrapper.style.overflowY = 'auto';
       document.body.style.overflow = 'auto';
       musicPlayerEl.classList.add('visible');
@@ -1055,7 +1116,7 @@
       bgVideo.style.opacity = ''; bgVideo.style.transform = '';
       if (videoFallback) { videoFallback.style.opacity = ''; videoFallback.style.transform = ''; }
       mainWrapper.style.transform = '';
-      swipeHint.style.opacity = '';
+      if (swipeAllowed()) { swipeHint.classList.add('show'); }
       musicPlayerEl.classList.remove('visible');
       musicPlayerEl.style.opacity = '';
       musicPlayerEl.style.pointerEvents = '';
@@ -1082,7 +1143,7 @@
     });
 
     document.addEventListener('click', function (e) {
-      if (transitioned) return;
+      if (transitioned || !swipeAllowed()) return;
       if (e.target.closest('#musicPlayerFloating') || e.target.closest('#playlistDropdown')) return;
       commitTransition();
     });
@@ -1090,7 +1151,9 @@
     document.addEventListener('keydown', function (e) {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (!transitioned) {
-        if (e.code === 'ArrowRight' || e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); commitTransition(); }
+        if (swipeAllowed() && (e.code === 'ArrowRight' || e.code === 'Space' || e.code === 'Enter')) {
+          e.preventDefault(); commitTransition();
+        }
         return;
       }
       switch (e.code) {
@@ -1151,16 +1214,69 @@
     });
 
     // ============================================================
-    //  INIT
+    //  INIT — wait for video + playlist, then 15s lock
     // ============================================================
+    function tryStartPlayback() {
+      if (!videoLoaded || !playlistReady) return;
+      allReady = true;
+      readyTime = Date.now();
+
+      // Hide loading overlay immediately
+      loadingOverlay.classList.add('fadeout');
+      setTimeout(function () { loadingOverlay.style.display = 'none'; }, 600);
+
+      // Show player with full controls
+      musicLoadingEl.style.display = 'none';
+      musicPlayerEl.style.display = 'flex';
+
+      // Sync: music + video play together
+      audioEl.volume = 1;
+      audioEl.play().then(function () {
+        setPlaying(true);
+      }).catch(function () {
+        setPlaying(false);
+        audioEl.pause();
+      });
+
+      // In 15s, unlock swipe
+      setTimeout(function () {
+        swipeHint.classList.add('show');
+      }, SWIPE_DELAY);
+    }
+
     function init() {
       musicPlayerEl.style.display = 'none';
+      loadingOverlay.style.display = 'block';
 
+      // 1) Wait for video to load
+      if (bgVideo.readyState >= 3) {
+        videoLoaded = true;
+        loadingText.textContent = '加载歌单中...';
+        tryStartPlayback();
+      } else {
+        loadingText.textContent = '加载视频中...';
+        bgVideo.addEventListener('canplaythrough', function () {
+          if (!videoLoaded) {
+            videoLoaded = true;
+            loadingText.textContent = '加载歌单中...';
+            tryStartPlayback();
+          }
+        }, { once: true });
+        setTimeout(function () {
+          if (!videoLoaded) {
+            console.warn('视频加载超时，继续');
+            videoLoaded = true;
+            loadingText.textContent = '加载歌单中...';
+            tryStartPlayback();
+          }
+        }, 8000);
+      }
+
+      // 2) Fetch playlist
       fetchPlaylist().then(function (data) {
         playlist = data;
         currentIndex = 0;
-        musicLoadingEl.style.display = 'none';
-        musicPlayerEl.style.display = 'flex';
+        playlistReady = true;
 
         renderPlaylist();
         var first = playlist[0];
@@ -1170,19 +1286,13 @@
         audioEl.src = first.url;
         audioEl.load();
 
-        audioEl.volume = 1;
-        audioEl.play().then(function () {
-          setPlaying(true);
-        }).catch(function () {
-          setPlaying(false);
-          audioEl.pause();
-        });
-
+        tryStartPlayback();
         console.log('✅ 歌单加载完成：' + playlist.length + ' 首');
       }).catch(function (err) {
         console.error('❌ 歌单失败:', err);
         musicLoadingEl.style.display = 'none';
-        musicPlayerEl.style.display = 'none';
+        loadingOverlay.classList.add('fadeout');
+        setTimeout(function () { loadingOverlay.style.display = 'none'; }, 600);
         musicErrorEl.style.display = 'block';
       });
     }
