@@ -161,6 +161,32 @@
 
       </div><!-- /card-right -->
     </div>
+
+    <!-- Scroll spacer — ensures mainWrapper has overflow for scroll detection -->
+    <div class="scroll-spacer"></div>
+
+    <!-- Scroll hint -->
+    <div id="scrollHint">
+      <span>向下滚动</span>
+      <span class="scroll-arrow-icon">↓</span>
+    </div>
+
+    <!-- Instructions panel — scroll down to reveal -->
+    <div id="instructionsPanel">
+      <button id="instructionsClose" title="关闭">✕</button>
+      <h2>📋 使用说明：</h2>
+      <ul>
+        <li>这个网站没有弹窗广告</li>
+        <li>没有需要注册的账号</li>
+        <li>没有需要回复的消息</li>
+        <li>也没有倒计时</li>
+      </ul>
+      <p class="instructions-footer">
+        你什么时候点开都可以，想关就关。<br>
+        如果里面有哪首歌让你想多听几遍，<br>
+        或者哪个页面让你笑了，这就够了。
+      </p>
+    </div>
   </div>
 
   <!-- ============================================================
@@ -261,6 +287,9 @@
     var musicPlayerEl  = document.getElementById('musicPlayerFloating');
     var volBtn         = document.getElementById('btnOverlayVol');
     var volSlider      = document.getElementById('overlayVolume');
+    var instructionsPanel     = document.getElementById('instructionsPanel');
+    var instructionsCloseBtn  = document.getElementById('instructionsClose');
+    var scrollHintEl          = document.getElementById('scrollHint');
 
     // ============================================================
     //  STATE
@@ -281,6 +310,7 @@
     var readyTime     = 0;           // Date.now() when playback started
     var SWIPE_DELAY   = 15000;       // 15 seconds forced viewing before swipe
     var countdownTimer = null;       // setTimeout id for delayed swipe unlock
+    var instructionsVisible = false; // instructions panel is shown
 
     // ============================================================
     //  UTILS
@@ -479,6 +509,7 @@
       bgVideo.classList.add('exited');
       if (videoFallback) videoFallback.classList.add('exited');
       mainWrapper.classList.add('entered');
+      swipeHint.classList.remove('show');
       swipeHint.classList.add('exited');
       mainWrapper.style.overflowY = 'auto';
       document.body.style.overflow = 'auto';
@@ -538,6 +569,7 @@
         case 'Space': e.preventDefault(); togglePlay(); break;
         case 'ArrowLeft': e.preventDefault(); previousTrack(); break;
         case 'ArrowRight': e.preventDefault(); nextTrack(); break;
+        case 'Escape': if (instructionsVisible) { exitInstructionsMode(); mainWrapper.scrollTo({ top: 0, behavior: 'smooth' }); } break;
       }
     });
 
@@ -555,6 +587,38 @@
         closePlaylist();
       }
     });
+
+    // Instructions panel — scroll down to reveal
+    mainWrapper.addEventListener('scroll', function () {
+      if (!transitioned) return;
+
+      // Fade scroll hint as user scrolls
+      if (scrollHintEl) {
+        scrollHintEl.classList.toggle('faded', mainWrapper.scrollTop > 40);
+      }
+
+      var threshold = 150;
+      if (mainWrapper.scrollTop > threshold) {
+        enterInstructionsMode();
+      } else {
+        exitInstructionsMode();
+      }
+    });
+
+    // Instructions panel — close button
+    instructionsCloseBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      exitInstructionsMode();
+      mainWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Instructions panel — scroll up (wheel) to close
+    mainWrapper.addEventListener('wheel', function (e) {
+      if (instructionsVisible && e.deltaY < 0) {
+        exitInstructionsMode();
+        mainWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, { passive: true });
 
     // Progress bar removed from player overlay
 
@@ -677,6 +741,31 @@
         countdownTimer = null;
         tryUnlockSwipe();
       }, SWIPE_DELAY);
+    }
+
+    // ============================================================
+    //  INSTRUCTIONS PANEL — scroll down to reveal
+    // ============================================================
+    function enterInstructionsMode() {
+      if (instructionsVisible) return;
+      instructionsVisible = true;
+      mainWrapper.classList.add('instructions-mode');
+      document.body.classList.add('instructions-mode');
+      instructionsPanel.style.display = 'block';
+      // Hide scroll hint
+      if (scrollHintEl) scrollHintEl.classList.add('faded');
+      // Lock background scrolling
+      mainWrapper.style.overflowY = 'hidden';
+    }
+
+    function exitInstructionsMode() {
+      if (!instructionsVisible) return;
+      instructionsVisible = false;
+      mainWrapper.classList.remove('instructions-mode');
+      document.body.classList.remove('instructions-mode');
+      instructionsPanel.style.display = 'none';
+      // Restore scrolling
+      mainWrapper.style.overflowY = 'auto';
     }
 
     // ============================================================

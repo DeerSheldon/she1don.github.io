@@ -167,6 +167,8 @@ html, body {
 
 #mainWrapper.entered {
   transform: translateX(0);
+  justify-content: flex-start;
+  padding-top: 8vh;
 }
 
 /* ============================================================
@@ -201,6 +203,118 @@ html, body {
   flex: 1;
   min-width: 260px;
   text-align: center;
+}
+
+/* ============================================================
+   INSTRUCTIONS PANEL — 1.5x card size, scroll to reveal
+============================================================ */
+
+/* Scroll spacer — forces overflow so mainWrapper can scroll */
+.scroll-spacer {
+  height: 60vh;
+  min-height: 360px;
+  max-height: 900px;
+  flex-shrink: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Scroll hint — guides user to scroll down */
+#scrollHint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+  text-align: center;
+  letter-spacing: 2px;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+}
+
+#scrollHint.faded {
+  opacity: 0;
+}
+
+#scrollHint .scroll-arrow-icon {
+  display: block;
+  font-size: 1.1rem;
+  margin-top: 4px;
+  animation: scrollArrowBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollArrowBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+
+#instructionsPanel {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.43);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+  max-width: 960px;
+  width: 92%;
+  margin: 60px auto 80px;
+  padding: 36px 42px 48px;
+  display: none;
+  text-align: center;
+}
+
+#instructionsPanel h2 {
+  font-size: 2rem;
+  font-weight: 300;
+  color: #555;
+  margin-bottom: 18px;
+}
+
+#instructionsPanel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+
+#instructionsPanel ul li {
+  font-size: 1.3rem;
+  color: #666;
+  line-height: 2;
+  font-weight: 300;
+}
+
+#instructionsPanel .instructions-footer {
+  font-size: 1.15rem;
+  color: #777;
+  line-height: 2;
+  font-weight: 300;
+}
+
+#instructionsClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  color: #888;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+#instructionsClose:hover {
+  background: rgba(0, 0, 0, 0.15);
+  color: #555;
 }
 
 /* ============================================================
@@ -856,6 +970,27 @@ html, body {
   transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Instructions mode — hide all floating components */
+#mainWrapper.instructions-mode .card,
+#mainWrapper.instructions-mode .time-card,
+#mainWrapper.instructions-mode .clear-screen-toggle-wrap {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.instructions-mode #musicPlayerFloating {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.instructions-mode #playlistDropdown {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
 .card:not(.clear-screen-hidden),
 .time-card:not(.clear-screen-hidden),
 #mainWrapper.entered .time-card:not(.clear-screen-hidden) {
@@ -889,6 +1024,9 @@ html, body {
   }
   .card-right { min-width: 0; width: 100%; }
 
+  #mainWrapper.entered { padding-top: 4vh; }
+  .scroll-spacer { height: 50vh; min-height: 280px; }
+
   .mini-disc-wrapper { width: 100px; height: 100px; }
   .mini-cover { top: 6px; left: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
   .mini-center { width: 9px; height: 9px; }
@@ -905,6 +1043,16 @@ html, body {
   .toggle-switch .toggle-track { border-radius: 10px; }
   .toggle-switch .toggle-knob { width: 16px; height: 16px; }
   .toggle-switch input:checked ~ .toggle-knob { transform: translateX(16px); }
+
+  #instructionsPanel {
+    max-width: 540px;
+    margin: 40px auto 60px;
+    padding: 24px 18px 32px;
+  }
+  #instructionsPanel h2 { font-size: 1.4rem; margin-bottom: 12px; }
+  #instructionsPanel ul li { font-size: 1rem; line-height: 1.8; }
+  #instructionsPanel .instructions-footer { font-size: 0.9rem; line-height: 1.8; }
+  #instructionsClose { width: 30px; height: 30px; top: 10px; right: 10px; font-size: 0.85rem; }
 }
 
 @media (max-width: 480px) {
@@ -924,6 +1072,9 @@ html, body {
   .time-card-right .clock-greeting { font-size: 0.6rem; }
 
   .card { padding: 16px 10px 20px; margin-top: 30px; }
+
+  #mainWrapper.entered { padding-top: 2vh; }
+  .scroll-spacer { height: 40vh; min-height: 220px; }
 
   #musicPlayerFloating {
     top: 8px; left: 8px;
@@ -956,4 +1107,14 @@ html, body {
   .toggle-switch .toggle-track { border-radius: 9px; }
   .toggle-switch .toggle-knob { width: 14px; height: 14px; }
   .toggle-switch input:checked ~ .toggle-knob { transform: translateX(14px); }
+
+  #instructionsPanel {
+    max-width: 92%;
+    margin: 30px auto 50px;
+    padding: 20px 14px 28px;
+  }
+  #instructionsPanel h2 { font-size: 1.2rem; margin-bottom: 10px; }
+  #instructionsPanel ul li { font-size: 0.9rem; line-height: 1.7; }
+  #instructionsPanel .instructions-footer { font-size: 0.8rem; line-height: 1.7; }
+  #instructionsClose { width: 28px; height: 28px; top: 8px; right: 8px; font-size: 0.8rem; }
 }
