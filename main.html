@@ -646,17 +646,26 @@
       musicLoadingEl.style.display = 'none';
       musicPlayerEl.style.display = 'flex';
 
-      // Start music + first page video together
+      // Start music + first page video together (simultaneously)
       audioEl.volume = 0.7;
       volSlider.value = 70;
       volSlider.style.setProperty('--vp', '70%');
       updateVolIcon(0.7);
-      audioEl.play().then(function () {
+
+      // Play video and audio at the same time for sync
+      var videoPromise = bgVideo && bgVideo.paused
+        ? bgVideo.play().catch(function (e) { console.warn('视频自动播放失败:', e); })
+        : Promise.resolve();
+
+      var audioPromise = audioEl.play().then(function () {
         setPlaying(true);
       }).catch(function () {
         setPlaying(false);
         audioEl.pause();
       });
+
+      // Log if either fails to start
+      Promise.all([videoPromise, audioPromise]).catch(function () {});
 
       // Update loading text based on current video2 status
       if (video2Loaded) {
