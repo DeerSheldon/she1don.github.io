@@ -162,17 +162,16 @@
       </div><!-- /card-right -->
     </div>
 
-    <!-- Scroll spacer — ensures mainWrapper has overflow for scroll detection -->
-    <div class="scroll-spacer"></div>
-
-    <!-- Scroll hint -->
-    <div id="scrollHint">
-      <span>向下滚动</span>
-      <span class="scroll-arrow-icon">↓</span>
+    <!-- Pull-down hint -->
+    <div id="pullDownHint">
+      <span>下拉查看说明</span>
+      <span class="pull-arrow-icon">↓</span>
     </div>
+  </div>
 
-    <!-- Instructions panel — scroll down to reveal -->
-    <div id="instructionsPanel">
+  <!-- Instructions overlay — floating panel, pull-down to reveal -->
+  <div id="instructionsOverlay">
+    <div class="instructions-card">
       <button id="instructionsClose" title="关闭">✕</button>
       <h2>📋 使用说明：</h2>
       <ul>
@@ -287,9 +286,9 @@
     var musicPlayerEl  = document.getElementById('musicPlayerFloating');
     var volBtn         = document.getElementById('btnOverlayVol');
     var volSlider      = document.getElementById('overlayVolume');
-    var instructionsPanel     = document.getElementById('instructionsPanel');
+    var instructionsOverlay   = document.getElementById('instructionsOverlay');
     var instructionsCloseBtn  = document.getElementById('instructionsClose');
-    var scrollHintEl          = document.getElementById('scrollHint');
+    var pullDownHintEl        = document.getElementById('pullDownHint');
 
     // ============================================================
     //  STATE
@@ -518,6 +517,8 @@
       musicPlayerEl.style.pointerEvents = '';
       // Start Punklorde background video
       if (bgVideo2) { bgVideo2.play().catch(function () {}); }
+      // Show pull-down hint briefly
+      setTimeout(function () { showPullDownHint(); }, 800);
     }
 
     function resetTransition() {
@@ -569,7 +570,7 @@
         case 'Space': e.preventDefault(); togglePlay(); break;
         case 'ArrowLeft': e.preventDefault(); previousTrack(); break;
         case 'ArrowRight': e.preventDefault(); nextTrack(); break;
-        case 'Escape': if (instructionsVisible) { exitInstructionsMode(); mainWrapper.scrollTo({ top: 0, behavior: 'smooth' }); } break;
+        case 'Escape': if (instructionsVisible) { exitInstructionsMode(); } break;
       }
     });
 
@@ -588,37 +589,104 @@
       }
     });
 
-    // Instructions panel — scroll down to reveal
-    mainWrapper.addEventListener('scroll', function () {
-      if (!transitioned) return;
+    // ============================================================
+    //  PULL-DOWN GESTURE — show instructions overlay
+    // ============================================================
+    var pullTracking    = false;
+    var pullStartY      = 0;
+    var pullCurY        = 0;
+    var PULL_THRESHOLD  = 80;   // px — how far to pull down to trigger
+    var pullHintTimer   = null; // auto-fade hint after a few seconds
 
-      // Fade scroll hint as user scrolls
-      if (scrollHintEl) {
-        scrollHintEl.classList.toggle('faded', mainWrapper.scrollTop > 40);
+    // Show pull-down hint briefly after entering second page
+    function showPullDownHint() {
+      if (!transitioned || instructionsVisible) return;
+      if (pullDownHintEl) {
+        pullDownHintEl.classList.remove('faded');
+        if (pullHintTimer) clearTimeout(pullHintTimer);
+        pullHintTimer = setTimeout(function () {
+          if (pullDownHintEl) pullDownHintEl.classList.add('faded');
+        }, 6000);
       }
+    }
 
-      var threshold = 150;
-      if (mainWrapper.scrollTop > threshold) {
+    function onPullStart(e) {
+      if (!transitioned || instructionsVisible) return;
+      pullTracking = true;
+      pullStartY = e.touches ? e.touches[0].clientY : e.clientY;
+      pullCurY = pullStartY;
+    }
+
+    function onPullMove(e) {
+      if (!pullTracking) return;
+      pullCurY = e.touches ? e.touches[0].clientY : e.clientY;
+      // Fade hint as user pulls down
+      var dy = pullCurY - pullStartY;
+      if (dy > 30 && pullDownHintEl && !pullDownHintEl.classList.contains('faded')) {
+        pullDownHintEl.classList.add('faded');
+      }
+    }
+
+    function onPullEnd() {
+      if (!pullTracking) return;
+      pullTracking = false;
+      var dy = pullCurY - pullStartY;
+      if (dy > PULL_THRESHOLD) {
         enterInstructionsMode();
-      } else {
-        exitInstructionsMode();
       }
-    });
+    }
+
+    // Touch pull-down on mainWrapper
+    mainWrapper.addEventListener('touchstart', function (e) {
+      // Only intercept if not swiping on other interactive elements
+      if (e.target.closest('#miniDiscWrapper') || e.target.closest('#playlistDropdown') ||
+          e.target.closest('#clearScreenToggleWrap') || e.target.closest('button') ||
+          e.target.closest('input')) return;
+      onPullStart(e);
+    }, { passive: true });
+
+    mainWrapper.addEventListener('touchmove', function (e) {
+      onPullMove(e);
+    }, { passive: true });
+
+    mainWrapper.addEventListener('touchend', onPullEnd);
+
+    // Mouse wheel pull-down on desktop
+    var wheelAccumulator = 0;
+    mainWrapper.addEventListener('wheel', function (e) {
+      if (!transitioned) return;
+      if (instructionsVisible) {
+        // Scroll up to close
+        if (e.deltaY < 0) exitInstructionsMode();
+        return;
+      }
+      // Accumulate downward scrolls to trigger
+      if (e.deltaY > 0) {
+        wheelAccumulator += e.deltaY;
+        if (wheelAccumulator > PULL_THRESHOLD * 3) {
+          wheelAccumulator = 0;
+          enterInstructionsMode();
+        }
+        // Reset accumulator if no scroll for a while
+        clearTimeout(wheelAccumulator._timer);
+        wheelAccumulator._timer = setTimeout(function () { wheelAccumulator = 0; }, 500);
+      } else {
+        wheelAccumulator = 0;
+      }
+    }, { passive: true });
 
     // Instructions panel — close button
     instructionsCloseBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       exitInstructionsMode();
-      mainWrapper.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // Instructions panel — scroll up (wheel) to close
-    mainWrapper.addEventListener('wheel', function (e) {
-      if (instructionsVisible && e.deltaY < 0) {
+    // Instructions panel — click backdrop to close
+    instructionsOverlay.addEventListener('click', function (e) {
+      if (e.target === instructionsOverlay) {
         exitInstructionsMode();
-        mainWrapper.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }, { passive: true });
+    });
 
     // Progress bar removed from player overlay
 
@@ -744,18 +812,16 @@
     }
 
     // ============================================================
-    //  INSTRUCTIONS PANEL — scroll down to reveal
+    //  INSTRUCTIONS PANEL — pull-down to reveal (floating overlay)
     // ============================================================
     function enterInstructionsMode() {
       if (instructionsVisible) return;
       instructionsVisible = true;
       mainWrapper.classList.add('instructions-mode');
       document.body.classList.add('instructions-mode');
-      instructionsPanel.style.display = 'block';
-      // Hide scroll hint
-      if (scrollHintEl) scrollHintEl.classList.add('faded');
-      // Lock background scrolling
-      mainWrapper.style.overflowY = 'hidden';
+      instructionsOverlay.classList.add('active');
+      // Hide pull-down hint
+      if (pullDownHintEl) pullDownHintEl.classList.add('faded');
     }
 
     function exitInstructionsMode() {
@@ -763,9 +829,7 @@
       instructionsVisible = false;
       mainWrapper.classList.remove('instructions-mode');
       document.body.classList.remove('instructions-mode');
-      instructionsPanel.style.display = 'none';
-      // Restore scrolling
-      mainWrapper.style.overflowY = 'auto';
+      instructionsOverlay.classList.remove('active');
     }
 
     // ============================================================

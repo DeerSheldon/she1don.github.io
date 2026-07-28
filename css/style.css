@@ -167,8 +167,6 @@ html, body {
 
 #mainWrapper.entered {
   transform: translateX(0);
-  justify-content: flex-start;
-  padding-top: 8vh;
 }
 
 /* ============================================================
@@ -206,54 +204,33 @@ html, body {
 }
 
 /* ============================================================
-   INSTRUCTIONS PANEL — 1.5x card size, scroll to reveal
+   INSTRUCTIONS PANEL — floating overlay, pull-down to reveal
 ============================================================ */
 
-/* Scroll spacer — forces overflow so mainWrapper can scroll */
-.scroll-spacer {
-  height: 60vh;
-  min-height: 360px;
-  max-height: 900px;
-  flex-shrink: 0;
+/* Overlay backdrop */
+#instructionsOverlay {
+  position: fixed;
+  top: 0; left: 0;
   width: 100%;
-  pointer-events: none;
-}
-
-/* Scroll hint — guides user to scroll down */
-#scrollHint {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.82rem;
-  text-align: center;
-  letter-spacing: 2px;
-  pointer-events: none;
-  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 1;
-}
-
-#scrollHint.faded {
+  height: 100%;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#scrollHint .scroll-arrow-icon {
-  display: block;
-  font-size: 1.1rem;
-  margin-top: 4px;
-  animation: scrollArrowBounce 1.8s ease-in-out infinite;
+#instructionsOverlay.active {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-@keyframes scrollArrowBounce {
-  0%, 100% { transform: translateY(0); opacity: 0.5; }
-  50% { transform: translateY(8px); opacity: 1; }
-}
-
-#instructionsPanel {
+/* Instructions card — 1.5x size of .card, same glass style */
+.instructions-card {
   position: relative;
-  z-index: 1;
   background: rgba(255, 255, 255, 0.43);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -261,33 +238,37 @@ html, body {
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   max-width: 960px;
   width: 92%;
-  margin: 60px auto 80px;
   padding: 36px 42px 48px;
-  display: none;
   text-align: center;
+  transform: scale(0.92);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#instructionsPanel h2 {
+#instructionsOverlay.active .instructions-card {
+  transform: scale(1);
+}
+
+.instructions-card h2 {
   font-size: 2rem;
   font-weight: 300;
   color: #555;
   margin-bottom: 18px;
 }
 
-#instructionsPanel ul {
+.instructions-card ul {
   list-style: none;
   padding: 0;
   margin: 0 0 24px;
 }
 
-#instructionsPanel ul li {
+.instructions-card ul li {
   font-size: 1.3rem;
   color: #666;
   line-height: 2;
   font-weight: 300;
 }
 
-#instructionsPanel .instructions-footer {
+.instructions-card .instructions-footer {
   font-size: 1.15rem;
   color: #777;
   line-height: 2;
@@ -315,6 +296,38 @@ html, body {
 #instructionsClose:hover {
   background: rgba(0, 0, 0, 0.15);
   color: #555;
+}
+
+/* Pull-down hint — shows briefly after entering second page */
+#pullDownHint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  text-align: center;
+  letter-spacing: 2px;
+  pointer-events: none;
+  transition: opacity 0.8s;
+  opacity: 1;
+}
+
+#pullDownHint.faded {
+  opacity: 0;
+}
+
+#pullDownHint .pull-arrow-icon {
+  display: block;
+  font-size: 1.1rem;
+  margin-top: 4px;
+  animation: pullArrowBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes pullArrowBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(8px); opacity: 1; }
 }
 
 /* ============================================================
@@ -1024,9 +1037,6 @@ body.instructions-mode #playlistDropdown {
   }
   .card-right { min-width: 0; width: 100%; }
 
-  #mainWrapper.entered { padding-top: 4vh; }
-  .scroll-spacer { height: 50vh; min-height: 280px; }
-
   .mini-disc-wrapper { width: 100px; height: 100px; }
   .mini-cover { top: 6px; left: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
   .mini-center { width: 9px; height: 9px; }
@@ -1044,14 +1054,13 @@ body.instructions-mode #playlistDropdown {
   .toggle-switch .toggle-knob { width: 16px; height: 16px; }
   .toggle-switch input:checked ~ .toggle-knob { transform: translateX(16px); }
 
-  #instructionsPanel {
+  .instructions-card {
     max-width: 540px;
-    margin: 40px auto 60px;
     padding: 24px 18px 32px;
   }
-  #instructionsPanel h2 { font-size: 1.4rem; margin-bottom: 12px; }
-  #instructionsPanel ul li { font-size: 1rem; line-height: 1.8; }
-  #instructionsPanel .instructions-footer { font-size: 0.9rem; line-height: 1.8; }
+  .instructions-card h2 { font-size: 1.4rem; margin-bottom: 12px; }
+  .instructions-card ul li { font-size: 1rem; line-height: 1.8; }
+  .instructions-card .instructions-footer { font-size: 0.9rem; line-height: 1.8; }
   #instructionsClose { width: 30px; height: 30px; top: 10px; right: 10px; font-size: 0.85rem; }
 }
 
@@ -1072,9 +1081,6 @@ body.instructions-mode #playlistDropdown {
   .time-card-right .clock-greeting { font-size: 0.6rem; }
 
   .card { padding: 16px 10px 20px; margin-top: 30px; }
-
-  #mainWrapper.entered { padding-top: 2vh; }
-  .scroll-spacer { height: 40vh; min-height: 220px; }
 
   #musicPlayerFloating {
     top: 8px; left: 8px;
@@ -1108,13 +1114,12 @@ body.instructions-mode #playlistDropdown {
   .toggle-switch .toggle-knob { width: 14px; height: 14px; }
   .toggle-switch input:checked ~ .toggle-knob { transform: translateX(14px); }
 
-  #instructionsPanel {
-    max-width: 92%;
-    margin: 30px auto 50px;
+  .instructions-card {
+    max-width: 94vw;
     padding: 20px 14px 28px;
   }
-  #instructionsPanel h2 { font-size: 1.2rem; margin-bottom: 10px; }
-  #instructionsPanel ul li { font-size: 0.9rem; line-height: 1.7; }
-  #instructionsPanel .instructions-footer { font-size: 0.8rem; line-height: 1.7; }
+  .instructions-card h2 { font-size: 1.2rem; margin-bottom: 10px; }
+  .instructions-card ul li { font-size: 0.9rem; line-height: 1.7; }
+  .instructions-card .instructions-footer { font-size: 0.8rem; line-height: 1.7; }
   #instructionsClose { width: 28px; height: 28px; top: 8px; right: 8px; font-size: 0.8rem; }
 }
