@@ -3,6 +3,13 @@
 ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
+:root {
+  --bg-brightness: 0.05;
+  --glass-blur: 3px;
+  --theme-accent: #E8B5B5;
+  --star-color: #E8B5B5;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
@@ -72,7 +79,7 @@ html, body {
   top: 0; left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(0, 0, 0, var(--bg-brightness));
   z-index: 0;
   pointer-events: none;
 }
@@ -147,7 +154,7 @@ html, body {
 }
 
 /* ============================================================
-   MAIN CONTENT WRAPPER — slides in on swipe
+   MAIN CONTENT WRAPPER — slides in on swipe, split layout
 ============================================================ */
 #mainWrapper {
   position: fixed;
@@ -158,15 +165,121 @@ html, body {
   transform: translateX(100%);
   transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: transparent;
 }
 
 #mainWrapper.entered {
   transform: translateX(0);
+}
+
+/* Left column — fixed sidebar */
+.main-left {
+  width: 340px;
+  flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0 20px 10px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Right column — scrollable content */
+.main-right {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 20px 10px;
+  position: relative;
+}
+
+/* Hide scrollbar in right column (optional, clean look) */
+.main-right::-webkit-scrollbar {
+  width: 4px;
+}
+.main-right::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   LEFT COLUMN ELEMENTS
+============================================================ */
+
+/* Fortune box within left column — 30px below music player */
+.main-left .fortune-box {
+  position: relative;
+  top: auto; left: auto;
+  width: 100%;
+  max-width: 310px;
+  margin-top: 164px;
+  margin-bottom: 16px;
+}
+
+/* ============================================================
+   RIGHT COLUMN ELEMENTS
+============================================================ */
+
+/* Time card within right column */
+.main-right .time-card {
+  position: relative;
+  top: auto; right: auto;
+  width: 100%;
+  max-width: 350px;
+  margin-bottom: 20px;
+}
+
+/* Clear-screen toggle within right column */
+.main-right .clear-screen-toggle-wrap {
+  position: absolute;
+  top: 50%;
+  right: 0;
+}
+
+/* Card within right column */
+.main-right .card {
+  margin: 0 0 40px 0;
+}
+
+/* ============================================================
+   MOBILE — stack vertically
+============================================================ */
+@media (max-width: 768px) {
+  #mainWrapper {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .main-left {
+    width: 100%;
+    height: auto;
+    flex-shrink: 1;
+    flex-direction: column;
+    padding: 12px 10px;
+    gap: 10px;
+  }
+  .main-right {
+    width: 100%;
+    height: auto;
+    overflow-y: visible;
+    padding: 12px 10px;
+  }
+  .main-right .time-card {
+    max-width: 100%;
+  }
+  .main-left .fortune-box {
+    max-width: 100%;
+    width: 100%;
+  }
+  .main-right .clear-screen-toggle-wrap {
+    display: none;
+  }
 }
 
 /* ============================================================
@@ -176,12 +289,12 @@ html, body {
   position: relative;
   z-index: 1;
   background: rgba(255, 255, 255, 0.43);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  padding: 24px 28px 98px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  padding: 32px 28px 115px;
   border-radius: 18px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
-  max-width: 640px;
+  max-width: 700px;
   width: 92%;
   margin: auto;
   display: flex;
@@ -201,6 +314,206 @@ html, body {
   flex: 1;
   min-width: 260px;
   text-align: center;
+}
+
+/* ============================================================
+   TEA WHEEL — spinning wheel for afternoon tea picker
+============================================================ */
+.tea-wheel-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.39);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.09);
+  width: 100%;
+  max-width: 350px;
+  padding: 18px 20px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When editing, expand to match card width */
+.tea-wheel-card.editing {
+  max-width: 700px;
+}
+
+.tea-wheel-header h2 {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #555;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.tea-wheel-header h2 span {
+  font-weight: 600;
+  color: var(--theme-accent);
+}
+
+.tea-wheel-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 12px;
+}
+
+.tea-wheel-container canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.tea-wheel-pointer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 24px solid var(--theme-accent);
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.2));
+  z-index: 2;
+}
+
+.tea-spin-btn {
+  padding: 10px 28px;
+  border-radius: 20px;
+  border: 1px solid var(--theme-accent);
+  background: transparent;
+  color: var(--theme-accent);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  font-family: inherit;
+  margin-bottom: 14px;
+}
+
+.tea-spin-btn:hover:not(:disabled) {
+  background: rgba(232, 181, 181, 0.12);
+}
+
+.tea-spin-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Edit toggle button */
+.tea-edit-toggle-btn {
+  display: block;
+  width: 100%;
+  padding: 7px 0;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  letter-spacing: 1px;
+  font-family: inherit;
+  margin-bottom: 6px;
+}
+
+.tea-edit-toggle-btn:hover {
+  color: var(--theme-accent);
+}
+
+/* Edit section */
+.tea-edit-section {
+  text-align: left;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 12px;
+}
+
+.tea-edit-input-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.tea-edit-input-row input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  outline: none;
+  font-family: inherit;
+  color: #555;
+  background: rgba(255,255,255,0.3);
+}
+
+.tea-edit-input-row input:focus {
+  border-color: var(--theme-accent);
+}
+
+.tea-edit-input-row button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.3);
+  color: #888;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tea-edit-input-row button:hover {
+  background: rgba(0,0,0,0.04);
+  color: #555;
+}
+
+.tea-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.tea-items-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  color: #f5f5f5;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.tea-items-list li:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.tea-items-list li .tea-item-delete {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.06);
+  color: #f4f4f4;
+  cursor: pointer;
+  font-size: 0.6rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tea-items-list li .tea-item-delete:hover {
+  background: rgba(220,80,80,0.12);
+  color: #c44;
 }
 
 /* ============================================================
@@ -232,8 +545,8 @@ html, body {
 .instructions-card {
   position: relative;
   background: rgba(255, 255, 255, 0.43);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border-radius: 18px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   max-width: 960px;
@@ -251,7 +564,7 @@ html, body {
 .instructions-card h2 {
   font-size: 2rem;
   font-weight: 300;
-  color: #555;
+  color: #ffffff;
   margin-bottom: 18px;
 }
 
@@ -263,7 +576,7 @@ html, body {
 
 .instructions-card ul li {
   font-size: 1.3rem;
-  color: #666;
+  color: #ffffff;
   line-height: 2;
   font-weight: 300;
 }
@@ -341,8 +654,8 @@ html, body {
   width: 350px;
   height: 290px;
   background: rgba(255, 255, 255, 0.39);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border-radius: 18px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.09);
   display: flex;
@@ -504,6 +817,704 @@ html, body {
 }
 
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ============================================================
+   FORTUNE BOX — left-edge slide drawer, slot-machine card
+============================================================ */
+.fortune-box {
+  position: absolute;
+  top: 184px;
+  left: 0;
+  z-index: 2;
+  width: 310px;
+  background: rgba(255, 255, 255, 0.39);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.09);
+  padding: 18px 20px 20px;
+  text-align: center;
+  opacity: 0;
+  /* Default: fully visible */
+  transform: translateX(0);
+  pointer-events: none;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Entry — fade in at full visibility */
+#mainWrapper.entered .fortune-box {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
+}
+.fortune-box.collapsed .fortune-slot-window,
+.fortune-box.collapsed .fortune-result-card,
+.fortune-box.collapsed .fortune-draw-btn {
+  display: none;
+}
+
+.fortune-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.fortune-box-header h2 {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 2px;
+  margin: 0;
+  
+}
+
+.fortune-box-toggle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  color: #999;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s, background 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.fortune-box-toggle:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #666;
+}
+
+.fortune-box.collapsed .fortune-box-toggle {
+  transform: rotate(180deg);
+}
+
+/* Slot window */
+.fortune-slot-window {
+  height: 48px;
+  line-height: 48px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.fortune-slot-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #888;
+  letter-spacing: 1px;
+  transition: color 0.3s;
+}
+
+.fortune-slot-text.spinning {
+  animation: fortuneSlotBlur 0.08s linear infinite;
+}
+
+.fortune-slot-text.result {
+  color: #444;
+  font-weight: 600;
+}
+
+@keyframes fortuneSlotBlur {
+  0%   { opacity: 0.5; transform: translateY(-2px); }
+  50%  { opacity: 1;   transform: translateY(0); }
+  100% { opacity: 0.5; transform: translateY(2px); }
+}
+
+/* Result card — hidden by default, slides in after draw */
+.fortune-result-card {
+  display: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-bottom: 16px;
+}
+
+.fortune-result-card.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fortune-result-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.fortune-result-title .fortune-rare-tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255, 107, 107, 0.12);
+  color: var(--theme-accent);
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.fortune-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.82rem;
+}
+
+.fortune-result-row:last-child { border-bottom: none; }
+
+.fortune-label {
+  color: #ececec;
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.fortune-value {
+  color: #555;
+  text-align: right;
+  max-width: 62%;
+}
+
+.fortune-value.good { color: #77d192; font-weight: bold; }
+.fortune-value.bad  { color: #ea8383; font-weight: bold; }
+
+.fortune-stars-display {
+  color: var(--star-color);
+  letter-spacing: 3px;
+  font-size: 1rem;
+}
+
+.fortune-stars-display.infinity {
+  font-size: 1.2rem;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+/* Draw button */
+.fortune-draw-btn {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f0f0f0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  letter-spacing: 1px;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+.fortune-draw-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.25);
+  color: #444;
+}
+
+.fortune-draw-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Hidden-flash glow */
+.fortune-box.hidden-flash {
+  animation: fortuneGlow 2s ease-in-out;
+}
+
+@keyframes fortuneGlow {
+  0%, 100% { box-shadow: 0 8px 40px rgba(0, 0, 0, 0.09); }
+  50%      { box-shadow: 0 8px 50px rgba(255, 107, 107, 0.18); }
+}
+
+/* Collapse button — right edge center of fortune box */
+.fortune-collapse-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+  width: 26px;
+  height: 50px;
+  border-radius: 0 8px 8px 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  color: var(--theme-accent);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, opacity 0.3s;
+  box-shadow: 3px 0 14px rgba(0, 0, 0, 0.06);
+  padding: 0;
+  line-height: 1;
+  z-index: 3;
+}
+
+.fortune-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.85);
+  color: #666;
+}
+
+/* Hide collapse button when fortune is hidden */
+.fortune-box.fortune-hidden .fortune-collapse-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Fortune box hidden in clear-screen mode */
+.fortune-box.clear-screen-hidden,
+#mainWrapper.entered .fortune-box.clear-screen-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fortune box hidden by its own toggle */
+.fortune-box.fortune-hidden,
+#mainWrapper.entered .fortune-box.fortune-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fortune box hidden in instructions mode */
+#mainWrapper.instructions-mode .fortune-box,
+#mainWrapper.instructions-mode .fortune-toggle-wrap {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   FORTUNE TOGGLE WRAP — mirror of clear-screen toggle, left edge
+============================================================ */
+.fortune-toggle-wrap {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%) translateX(-58%);
+  z-index: 10;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 0 32px 32px 0;
+  padding: 10px 14px 10px 18px;
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.08);
+  cursor: default;
+}
+
+.fortune-toggle-wrap:hover {
+  transform: translateY(-50%) translateX(0);
+}
+
+.fortune-toggle-wrap .toggle-label {
+  font-size: 0.72rem;
+  color: #888;
+  white-space: nowrap;
+  letter-spacing: 1px;
+  user-select: none;
+}
+
+/* Hide toggle wrap when fortune box is visible */
+.fortune-toggle-wrap.toggle-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+/* ============================================================
+   SOCIAL BUTTONS ROW — leleo-style icons at left column bottom
+============================================================ */
+.social-btns-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  padding-bottom: 8px;
+}
+
+.social-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s, background 0.2s, color 0.2s, opacity 0.5s;
+  text-decoration: none;
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#mainWrapper.entered .social-icon-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transition: transform 0.25s, background 0.2s, color 0.2s, opacity 0.8s 0.5s;
+}
+
+.social-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--theme-accent);
+  transform: scale(1.15);
+}
+
+/* Settings gear — larger icon */
+.social-icon-btn.settings-gear-btn {
+  font-size: 1.5rem;
+}
+
+.social-icon-btn.settings-gear-btn:hover {
+  transform: scale(1.15) rotate(60deg);
+}
+
+/* Hide social row in instructions mode */
+body.instructions-mode .social-btns-row {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* ============================================================
+   SETTINGS OVERLAY — modal with tabs
+============================================================ */
+#settingsOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#settingsOverlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settings-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.43);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  width: 92%;
+  padding: 48px 40px 40px;
+  text-align: center;
+  transform: scale(0.92);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#settingsOverlay.active .settings-card {
+  transform: scale(1);
+}
+
+.settings-card h2 {
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+#settingsClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.08);
+  color: #e7e7e7;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+#settingsClose:hover {
+  background: rgba(0, 0, 0, 0.15);
+  color: #c3c3c3;
+}
+
+/* Settings tabs */
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.settings-tab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  color: #f4f4f4;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: inherit;
+  letter-spacing: 1px;
+}
+
+.settings-tab + .settings-tab {
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.settings-tab.active {
+  background: rgba(0, 0, 0, 0.04);
+  color: #a2a2a2;
+  font-weight: 500;
+}
+
+.settings-tab:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.02);
+  color: #777;
+}
+
+/* Settings panel content */
+.settings-panel {
+  text-align: left;
+}
+
+.settings-panel label {
+  display: block;
+  font-size: 0.8rem;
+  color: #ffffff;
+  margin-bottom: 4px;
+  margin-top: 14px;
+  letter-spacing: 1px;
+}
+
+.settings-panel label:first-child {
+  margin-top: 0;
+}
+
+.settings-panel input[type="color"] {
+  width: 100%;
+  height: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 2px;
+  background: transparent;
+}
+
+.settings-panel input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--theme-accent) 0%, var(--theme-accent) var(--range-pct, 50%), #e0e0e0 var(--range-pct, 50%), #e0e0e0 100%);
+  outline: none;
+  cursor: pointer;
+}
+
+.settings-panel input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--theme-accent);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.settings-panel .range-val {
+  float: right;
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* Wallpaper sub-tabs (static / dynamic) */
+.wallpaper-subtabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.wallpaper-subtab {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: #f3f3f3;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: inherit;
+  letter-spacing: 1px;
+}
+
+.wallpaper-subtab + .wallpaper-subtab {
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.wallpaper-subtab.active {
+  background: rgba(0, 0, 0, 0.04);
+  color: #f1f1f1;
+  font-weight: 500;
+}
+
+.wallpaper-subtab:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.02);
+  color: #d1d1d1;
+}
+
+/* Wallpaper grid */
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.wallpaper-item {
+  aspect-ratio: 16/10;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+
+.wallpaper-item.selected {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+}
+
+.wallpaper-item .wallpaper-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wallpaper-item .wallpaper-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+/* Instructions content in settings */
+.instructions-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.instructions-content ul li {
+  font-size: 0.9rem;
+  color: #f5f5f5;
+  line-height: 2;
+  font-weight: 300;
+}
+
+.instructions-footer-text {
+  font-size: 0.85rem;
+  color: #f5f5f5;
+  line-height: 2;
+  font-weight: 300;
+}
+
+/* Settings action buttons */
+.settings-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.settings-btn {
+  padding: 15px 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: transparent;
+  color: #dadada;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  font-family: inherit;
+}
+
+.settings-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #ffffff;
+}
+
+.settings-btn.primary {
+  background: var(--theme-accent);
+  border-color: var(--theme-accent);
+  color: #fff;
+}
+
+.settings-btn.primary:hover {
+  opacity: 0.85;
+  color: #fff;
+}
+
+/* Hide settings gear in instructions mode */
+body.instructions-mode .settings-gear-btn {
+  opacity: 0 !important;
+  pointer-events: none;
+}
 
 /* ============================================================
    FLOATING MUSIC PLAYER — leleo-style, cover-only + hover overlay
@@ -837,7 +1848,7 @@ html, body {
 }
 
 #playlistDropdown ul li.active .pli-index {
-  color: #FF6B6B;
+  color: var(--theme-accent);
   font-weight: 700;
 }
 
@@ -860,7 +1871,7 @@ html, body {
 }
 
 #playlistDropdown ul li .pli-playing {
-  color: #FF6B6B;
+  color: var(--theme-accent);
   font-size: 10px;
   display: none;
 }
@@ -955,7 +1966,7 @@ html, body {
 }
 
 .toggle-switch input:checked + .toggle-track {
-  background: #FF6B6B;
+  background: var(--theme-accent);
 }
 
 .toggle-switch .toggle-knob {
@@ -1062,6 +2073,40 @@ body.instructions-mode #playlistDropdown {
   .instructions-card ul li { font-size: 1rem; line-height: 1.8; }
   .instructions-card .instructions-footer { font-size: 0.9rem; line-height: 1.8; }
   #instructionsClose { width: 30px; height: 30px; top: 10px; right: 10px; font-size: 0.85rem; }
+
+  .fortune-box {
+    width: 250px;
+    top: 150px;
+    left: 0;
+    border-radius: 14px;
+    padding: 12px 14px 16px;
+    transform: translateX(0);
+  }
+  .fortune-box-header { margin-bottom: 10px; }
+  .fortune-box-header h2 { font-size: 0.8rem; letter-spacing: 1px; }
+  .fortune-box-toggle { width: 18px; height: 18px; font-size: 8px; }
+  .fortune-toggle-wrap {
+    padding: 8px 12px 8px 14px;
+    gap: 6px;
+    border-radius: 0 26px 26px 0;
+  }
+  .fortune-toggle-wrap .toggle-label { font-size: 0.65rem; }
+  .fortune-slot-window { height: 40px; line-height: 40px; margin-bottom: 10px; }
+  .fortune-slot-text { font-size: 0.95rem; }
+  .fortune-result-title { font-size: 1rem; margin-bottom: 8px; }
+  .fortune-result-row { font-size: 0.72rem; padding: 5px 0; }
+  .fortune-draw-btn { font-size: 0.78rem; padding: 9px; }
+  .fortune-collapse-btn { width: 22px; height: 40px; font-size: 8px; border-radius: 0 6px 6px 0; }
+  .social-icon-btn { width: 34px; height: 34px; }
+  .social-icon-btn.settings-gear-btn { font-size: 1.2rem; }
+  .social-icon-btn svg { width: 20px; height: 20px; }
+  .settings-card { max-width: 700px; padding: 32px 24px 28px; }
+  .settings-card h2 { font-size: 1.2rem; }
+  .tea-wheel-card { max-width: 280px; padding: 14px 16px 16px; }
+  .tea-wheel-card.editing { max-width: 500px; }
+  .tea-wheel-container { width: 220px; height: 220px; }
+  .tea-wheel-header h2 { font-size: 0.85rem; }
+  .tea-spin-btn { font-size: 0.78rem; padding: 8px 22px; }
 }
 
 @media (max-width: 480px) {
@@ -1122,4 +2167,42 @@ body.instructions-mode #playlistDropdown {
   .instructions-card ul li { font-size: 0.9rem; line-height: 1.7; }
   .instructions-card .instructions-footer { font-size: 0.8rem; line-height: 1.7; }
   #instructionsClose { width: 28px; height: 28px; top: 8px; right: 8px; font-size: 0.8rem; }
+
+  .fortune-box {
+    width: 210px;
+    top: 108px;
+    left: 0;
+    border-radius: 12px;
+    padding: 10px 10px 14px;
+    transform: translateX(0);
+  }
+  .fortune-box-header { margin-bottom: 8px; }
+  .fortune-box-header h2 { font-size: 0.7rem; letter-spacing: 1px; }
+  .fortune-box-toggle { width: 16px; height: 16px; font-size: 7px; }
+  .fortune-toggle-wrap {
+    padding: 6px 10px 6px 12px;
+    gap: 4px;
+    border-radius: 0 22px 22px 0;
+  }
+  .fortune-toggle-wrap .toggle-label { font-size: 0.6rem; letter-spacing: 0.5px; }
+  .fortune-slot-window { height: 34px; line-height: 34px; margin-bottom: 8px; border-radius: 8px; }
+  .fortune-slot-text { font-size: 0.82rem; }
+  .fortune-result-title { font-size: 0.9rem; margin-bottom: 6px; }
+  .fortune-result-row { font-size: 0.68rem; padding: 4px 0; }
+  .fortune-label { font-size: 0.65rem; }
+  .fortune-draw-btn { font-size: 0.7rem; padding: 8px; border-radius: 8px; }
+  .fortune-stars-display { font-size: 0.85rem; letter-spacing: 2px; }
+  .fortune-collapse-btn { width: 20px; height: 34px; font-size: 7px; border-radius: 0 5px 5px 0; }
+  .social-icon-btn { width: 30px; height: 30px; }
+  .social-icon-btn.settings-gear-btn { font-size: 1.05rem; }
+  .social-icon-btn svg { width: 17px; height: 17px; }
+  .settings-card { max-width: 94vw; padding: 24px 14px 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .settings-card h2 { font-size: 1.1rem; }
+  .tea-wheel-card { max-width: 240px; padding: 12px 12px 14px; }
+  .tea-wheel-card.editing { max-width: 94vw; }
+  .tea-wheel-container { width: 180px; height: 180px; }
+  .tea-wheel-header h2 { font-size: 0.75rem; }
+  .tea-spin-btn { font-size: 0.7rem; padding: 6px 18px; }
+  .settings-tab { font-size: 0.72rem; padding: 8px 0; }
+  .settings-btn { font-size: 0.7rem; padding: 7px 16px; }
 }

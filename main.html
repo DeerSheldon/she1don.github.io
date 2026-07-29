@@ -50,6 +50,60 @@
     ></video>
     <div id="bgVideo2Overlay"></div>
 
+    <!-- ============================================================
+         LEFT COLUMN — fixed sidebar
+    ============================================================ -->
+    <div class="main-left">
+
+      <!-- Fortune box — standalone slot-machine card -->
+      <div class="fortune-box" id="fortuneBox">
+        <div class="fortune-box-header">
+          <h2>今日工位运势</h2>
+          <button class="fortune-box-toggle" id="fortuneBoxToggle" title="收起内容">▲</button>
+        </div>
+        <div class="fortune-slot-window">
+          <div class="fortune-slot-text" id="fortuneSlotText">点击抽一张</div>
+        </div>
+        <div class="fortune-result-card" id="fortuneResultCard">
+          <div class="fortune-result-title" id="fortuneResTitle"></div>
+          <div class="fortune-result-row"><span class="fortune-label">宜</span><span class="fortune-value good" id="fortuneResGood"></span></div>
+          <div class="fortune-result-row"><span class="fortune-label">忌</span><span class="fortune-value bad" id="fortuneResBad"></span></div>
+          <div class="fortune-result-row"><span class="fortune-label">幸运物</span><span class="fortune-value" id="fortuneResItem"></span></div>
+          <div class="fortune-result-row"><span class="fortune-label">运势指数</span><span class="fortune-value fortune-stars-display" id="fortuneResStars"></span></div>
+        </div>
+        <button class="fortune-draw-btn" id="fortuneDrawBtn">抽一张</button>
+        <button class="fortune-collapse-btn" id="fortuneCollapseBtn" title="隐藏">◀</button>
+      </div>
+
+      <!-- Settings gear button -->
+      <!-- Social icon buttons row -->
+      <div class="social-btns-row">
+        <a class="social-icon-btn" id="githubBtn" href="https://github.com/DeerSheldon/she1don.github.io" target="_blank" title="GitHub">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <button class="social-icon-btn settings-gear-btn" id="settingsGearBtn" title="设置">⚙</button>
+        <a class="social-icon-btn" id="wechatBtn" href="https://wx.qq.com" target="_blank" title="微信">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12 2C6.5 2 2 6.1 2 10.9c0 2.7 1.5 5.2 4 7 .2.1.4.4.3.7l-.3 1.6c0 .1 0 .3.2.3.1 0 .1 0 .2-.1l1.9-1.1c.2-.1.4-.2.6-.1 1.2.6 2.6.9 4.1.9.5 0 1.1-.1 1.6-.2-.5-1-.8-2-.8-3.1 0-3.8 3.5-6.9 7.9-6.9.3 0 .6 0 .9.1C21.8 5.2 17.3 2 12 2zM8.5 6.5c.8 0 1.5.7 1.5 1.5S9.3 9.5 8.5 9.5 7 8.8 7 8s.7-1.5 1.5-1.5zm7 0c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5S14 8.8 14 8s.7-1.5 1.5-1.5zm2.5 6.5c-3.3 0-6 2.4-6 5.5s2.7 5.5 6 5.5c.6 0 1.2-.1 1.8-.3l1.4.9c.1.1.3.1.4 0 .1-.1.1-.3 0-.4l-.4-1c-.1-.2 0-.4.1-.5 1.5-1.1 2.7-2.5 2.7-4.2 0-3.1-2.7-5.5-6-5.5zm-1.5 2.5c.6 0 1 .5 1 1s-.4 1-1 1-1-.5-1-1 .4-1 1-1zm3.5 0c.6 0 1 .5 1 1s-.4 1-1 1-1-.5-1-1 .4-1 1-1z"/></svg>
+        </a>
+      </div>
+
+      <!-- Fortune toggle — mirror of clear-screen toggle, left edge -->
+      <div class="fortune-toggle-wrap" id="fortuneToggleWrap">
+        <label class="toggle-switch">
+          <input type="checkbox" id="fortuneToggle" />
+          <span class="toggle-track"></span>
+          <span class="toggle-knob"></span>
+        </label>
+        <span class="toggle-label">今日运势</span>
+      </div>
+
+    </div><!-- /main-left -->
+
+    <!-- ============================================================
+         RIGHT COLUMN — scrollable content
+    ============================================================ -->
+    <div class="main-right">
+
     <!-- Time card — top-right corner -->
     <div class="time-card">
       <!-- Left: Turntable -->
@@ -162,11 +216,28 @@
       </div><!-- /card-right -->
     </div>
 
-    <!-- Pull-down hint -->
-    <div id="pullDownHint">
-      <span>下拉查看说明</span>
-      <span class="pull-arrow-icon">↓</span>
+    <!-- Tea wheel card — spinning wheel for afternoon tea -->
+    <div class="tea-wheel-card" id="teaWheelCard">
+      <div class="tea-wheel-header">
+        <h2>今天下午茶喝<span id="teaResult">XXX</span>！</h2>
+      </div>
+      <div class="tea-wheel-container">
+        <canvas id="teaWheelCanvas" width="300" height="300"></canvas>
+        <div class="tea-wheel-pointer"></div>
+      </div>
+      <button class="tea-spin-btn" id="teaSpinBtn">🎯 转一转</button>
+      <button class="tea-edit-toggle-btn" id="teaEditToggleBtn">不符合你的需求？那你自己改吧</button>
+      <div class="tea-edit-section" id="teaEditSection" style="display:none;">
+        <div class="tea-edit-input-row">
+          <input type="text" id="teaAddInput" placeholder="添加新选项..." maxlength="20">
+          <button id="teaAddBtn" title="添加">+</button>
+        </div>
+        <ul class="tea-items-list" id="teaItemsList"></ul>
+      </div>
     </div>
+
+    </div><!-- /main-right -->
+
   </div>
 
   <!-- Instructions overlay — floating panel, pull-down to reveal -->
@@ -185,6 +256,53 @@
         如果里面有哪首歌让你想多听几遍，<br>
         或者哪个页面让你笑了，这就够了。
       </p>
+    </div>
+  </div>
+
+  <!-- Settings overlay — modal with style & wallpaper tabs -->
+  <div id="settingsOverlay">
+    <div class="settings-card">
+      <button id="settingsClose" title="关闭">✕</button>
+      <h2>⚙ 设置</h2>
+      <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="style">样式</button>
+        <button class="settings-tab" data-tab="wallpaper">壁纸</button>
+        <button class="settings-tab" data-tab="instructions">说明</button>
+      </div>
+      <div class="settings-panel" id="panelStyle">
+        <label>主题颜色</label>
+        <input type="color" id="themeColorInput" value="#E8B5B5">
+        <label>背景亮度 <span class="range-val" id="brightnessVal">5%</span></label>
+        <input type="range" id="brightnessSlider" min="0" max="100" value="5" step="1">
+        <label>模糊度 <span class="range-val" id="blurVal">3px</span></label>
+        <input type="range" id="blurSlider" min="0" max="15" value="3" step="0.5">
+      </div>
+      <div class="settings-panel" id="panelWallpaper" style="display:none;">
+        <div class="wallpaper-subtabs">
+          <button class="wallpaper-subtab active" data-wptab="static">静态壁纸</button>
+          <button class="wallpaper-subtab" data-wptab="dynamic">动态壁纸</button>
+        </div>
+        <div class="wallpaper-grid" id="wallpaperGrid"></div>
+      </div>
+      <div class="settings-panel" id="panelInstructions" style="display:none;">
+        <div class="instructions-content">
+          <ul>
+            <li>这个网站没有弹窗广告</li>
+            <li>没有需要注册的账号</li>
+            <li>没有需要回复的消息</li>
+            <li>也没有倒计时</li>
+          </ul>
+          <p class="instructions-footer-text">
+            你什么时候点开都可以，想关就关。<br>
+            如果里面有哪首歌让你想多听几遍，<br>
+            或者哪个页面让你笑了，这就够了。
+          </p>
+        </div>
+      </div>
+      <div class="settings-actions">
+        <button class="settings-btn" id="settingsReset">恢复默认</button>
+        <button class="settings-btn primary" id="settingsApply">应用</button>
+      </div>
     </div>
   </div>
 
@@ -288,7 +406,6 @@
     var volSlider      = document.getElementById('overlayVolume');
     var instructionsOverlay   = document.getElementById('instructionsOverlay');
     var instructionsCloseBtn  = document.getElementById('instructionsClose');
-    var pullDownHintEl        = document.getElementById('pullDownHint');
 
     // ============================================================
     //  STATE
@@ -517,8 +634,6 @@
       musicPlayerEl.style.pointerEvents = '';
       // Start Punklorde background video
       if (bgVideo2) { bgVideo2.play().catch(function () {}); }
-      // Show pull-down hint briefly
-      setTimeout(function () { showPullDownHint(); }, 800);
     }
 
     function resetTransition() {
@@ -589,93 +704,7 @@
       }
     });
 
-    // ============================================================
-    //  PULL-DOWN GESTURE — show instructions overlay
-    // ============================================================
-    var pullTracking    = false;
-    var pullStartY      = 0;
-    var pullCurY        = 0;
-    var PULL_THRESHOLD  = 80;   // px — how far to pull down to trigger
-    var pullHintTimer   = null; // auto-fade hint after a few seconds
-
-    // Show pull-down hint briefly after entering second page
-    function showPullDownHint() {
-      if (!transitioned || instructionsVisible) return;
-      if (pullDownHintEl) {
-        pullDownHintEl.classList.remove('faded');
-        if (pullHintTimer) clearTimeout(pullHintTimer);
-        pullHintTimer = setTimeout(function () {
-          if (pullDownHintEl) pullDownHintEl.classList.add('faded');
-        }, 6000);
-      }
-    }
-
-    function onPullStart(e) {
-      if (!transitioned || instructionsVisible) return;
-      pullTracking = true;
-      pullStartY = e.touches ? e.touches[0].clientY : e.clientY;
-      pullCurY = pullStartY;
-    }
-
-    function onPullMove(e) {
-      if (!pullTracking) return;
-      pullCurY = e.touches ? e.touches[0].clientY : e.clientY;
-      // Fade hint as user pulls down
-      var dy = pullCurY - pullStartY;
-      if (dy > 30 && pullDownHintEl && !pullDownHintEl.classList.contains('faded')) {
-        pullDownHintEl.classList.add('faded');
-      }
-    }
-
-    function onPullEnd() {
-      if (!pullTracking) return;
-      pullTracking = false;
-      var dy = pullCurY - pullStartY;
-      if (dy > PULL_THRESHOLD) {
-        enterInstructionsMode();
-      }
-    }
-
-    // Touch pull-down on mainWrapper
-    mainWrapper.addEventListener('touchstart', function (e) {
-      // Only intercept if not swiping on other interactive elements
-      if (e.target.closest('#miniDiscWrapper') || e.target.closest('#playlistDropdown') ||
-          e.target.closest('#clearScreenToggleWrap') || e.target.closest('button') ||
-          e.target.closest('input')) return;
-      onPullStart(e);
-    }, { passive: true });
-
-    mainWrapper.addEventListener('touchmove', function (e) {
-      onPullMove(e);
-    }, { passive: true });
-
-    mainWrapper.addEventListener('touchend', onPullEnd);
-
-    // Mouse wheel pull-down on desktop
-    var wheelAccumulator = 0;
-    mainWrapper.addEventListener('wheel', function (e) {
-      if (!transitioned) return;
-      if (instructionsVisible) {
-        // Scroll up to close
-        if (e.deltaY < 0) exitInstructionsMode();
-        return;
-      }
-      // Accumulate downward scrolls to trigger
-      if (e.deltaY > 0) {
-        wheelAccumulator += e.deltaY;
-        if (wheelAccumulator > PULL_THRESHOLD * 3) {
-          wheelAccumulator = 0;
-          enterInstructionsMode();
-        }
-        // Reset accumulator if no scroll for a while
-        clearTimeout(wheelAccumulator._timer);
-        wheelAccumulator._timer = setTimeout(function () { wheelAccumulator = 0; }, 500);
-      } else {
-        wheelAccumulator = 0;
-      }
-    }, { passive: true });
-
-    // Instructions panel — close button
+    // Instructions panel — close button (kept for compatibility)
     instructionsCloseBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       exitInstructionsMode();
@@ -820,8 +849,6 @@
       mainWrapper.classList.add('instructions-mode');
       document.body.classList.add('instructions-mode');
       instructionsOverlay.classList.add('active');
-      // Hide pull-down hint
-      if (pullDownHintEl) pullDownHintEl.classList.add('faded');
     }
 
     function exitInstructionsMode() {
@@ -1004,8 +1031,55 @@
       document.getElementById('clockDate').textContent = fmtDate(n);
       if (greetingEl) greetingEl.textContent = fmtGreeting(n);
     }
+    window._clockTick = tick;
     tick();
-    setInterval(tick, 1000);
+    window._clockInterval = setInterval(tick, 1000);
+  })();
+
+  // ================================================================
+  //  TURNTABLE HOVER COUNTER — after 5 shape changes, reveal meeting time
+  // ================================================================
+  (function () {
+    var svgFrame = document.querySelector('.svg-frame');
+    var clockTimeEl = document.getElementById('clockTime');
+    var clockDateEl = document.getElementById('clockDate');
+    var clockGreetingEl = document.getElementById('clockGreeting');
+    var hoverCount = 0;
+    var triggered = false;
+    var MEETING = new Date(2026, 1, 19, 21, 6, 0);
+    var revertTimer = null;
+    if (!svgFrame || !clockTimeEl) return;
+
+    function updateMeetingDisplay() {
+      var now = new Date();
+      var diff = now - MEETING;
+      if (diff < 0) { clockTimeEl.textContent = '相遇的时刻还未到来...'; return; }
+      var totalMinutes = Math.floor(diff / 60000);
+      var totalHours = Math.floor(totalMinutes / 60);
+      var days = Math.floor(totalHours / 24);
+      var hours = totalHours % 24;
+      var minutes = totalMinutes % 60;
+      clockTimeEl.textContent = '距离我和你的相遇已经' + days + '天' + hours + '小时' + minutes + '分了';
+      clockDateEl.textContent = '谢谢你找到我';
+      if (clockGreetingEl) clockGreetingEl.textContent = '';
+    }
+
+    function revertToClock() {
+      if (window._clockTick) { window._clockTick(); window._clockInterval = setInterval(window._clockTick, 1000); }
+      hoverCount = 0; triggered = false;
+    }
+
+    svgFrame.addEventListener('mouseenter', function () {
+      if (triggered) return;
+      hoverCount++;
+      if (hoverCount >= 5) {
+        triggered = true;
+        if (window._clockInterval) { clearInterval(window._clockInterval); window._clockInterval = null; }
+        updateMeetingDisplay();
+        if (revertTimer) clearTimeout(revertTimer);
+        revertTimer = setTimeout(revertToClock, 5000);
+      }
+    });
   })();
 
   // ================================================================
@@ -1032,17 +1106,477 @@
   })();
 
   // ================================================================
+  //  FORTUNE BOX — standalone slot-machine, daily draw, collapse
+  // ================================================================
+  (function () {
+    var fortunes = [
+      { title: "经典摸鱼", good: "带薪发呆", bad: "秒回工作消息", item: "工位小摆件", stars: 4 },
+      { title: "低能耗模式", good: "已读不回", bad: "参加临时会议", item: "降噪耳机", stars: 3 },
+      { title: "二次元补给", good: "补番 / 打游戏", bad: "被剧透", item: "追番列表", stars: 5 },
+      { title: "干饭优先", good: "准时下班吃饭", bad: "吃公司食堂", item: "一杯奶茶", stars: 4 },
+      { title: "工位摆烂", good: "假装在忙", bad: "主动揽活", item: "镜子", stars: 3 },
+      { title: "有效社交", good: "和猫说话", bad: "和人类寒暄", item: "社交能量条", stars: 2 },
+      { title: "游戏人生", good: "打一局喜欢的游戏", bad: "匹配到奇怪队友", item: "手柄 / 键盘", stars: 5 },
+      { title: "深度发呆", good: "发呆十分钟", bad: "思考人生意义", item: "窗户", stars: 3 },
+      { title: "周末预演", good: "计划怎么躺", bad: "打开工作群", item: "床", stars: 5 },
+      { title: "音乐疗愈", good: "单曲循环", bad: "听长语音", item: "喜欢的歌单", stars: 4 },
+      { title: "轻度叛逆", good: "对不合理需求说稍等", bad: "秒回好的收到", item: "表情包", stars: 4 },
+      { title: "朋克养生", good: "多喝热水", bad: "熬夜", item: "润喉糖", stars: 3 },
+      { title: "盲盒玄学", good: "抽一个盲盒", bad: "看余额", item: "还没拆的那只", stars: 5 },
+      { title: "极简主义", good: "什么都不做", bad: "做多余的事", item: "空气", stars: 6 },
+      { title: "隐藏款", good: "给在意的人发个表情包", bad: "想太多", item: "一段轻松的对话", stars: 5 }
+    ];
+    var STORAGE_KEY = 'fortune_daily_v2';
+    var box = document.getElementById('fortuneBox');
+    var slotText = document.getElementById('fortuneSlotText');
+    var resultCard = document.getElementById('fortuneResultCard');
+    var drawBtn = document.getElementById('fortuneDrawBtn');
+    var toggleBtn = document.getElementById('fortuneBoxToggle');
+    if (!box || !slotText || !resultCard || !drawBtn) return;
+    var isSpinning = false;
+
+    function getToday() {
+      var d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function renderResult(f) {
+      document.getElementById('fortuneResTitle').innerHTML = f.title + (f.title === '隐藏款' ? '<span class="fortune-rare-tag">RARE</span>' : '');
+      document.getElementById('fortuneResGood').textContent = f.good;
+      document.getElementById('fortuneResBad').textContent = f.bad;
+      document.getElementById('fortuneResItem').textContent = f.item;
+      var starsEl = document.getElementById('fortuneResStars');
+      if (f.stars === 6) { starsEl.textContent = '∞'; starsEl.classList.add('infinity'); }
+      else { starsEl.textContent = '★'.repeat(f.stars) + '☆'.repeat(5 - f.stars); starsEl.classList.remove('infinity'); }
+    }
+    function finalize(f) {
+      slotText.classList.remove('spinning'); slotText.classList.add('result');
+      slotText.textContent = f.title; renderResult(f);
+      setTimeout(function () {
+        resultCard.classList.add('show');
+        if (f.title === '隐藏款') box.classList.add('hidden-flash'); else box.classList.remove('hidden-flash');
+        isSpinning = false; drawBtn.disabled = false; drawBtn.textContent = '再抽一张';
+      }, 150);
+    }
+    function slowDown(step, remaining, finalResult) {
+      if (remaining <= 0) { finalize(finalResult); return; }
+      var delay = 120 + (3 - remaining) * 180;
+      setTimeout(function () { slotText.textContent = fortunes[Math.floor(Math.random() * fortunes.length)].title; slowDown(step, remaining - 1, finalResult); }, delay);
+    }
+    function spin(finalResult) {
+      var totalSpins = 18, count = 0;
+      slotText.classList.add('spinning'); slotText.classList.remove('result');
+      var spinTimer = setInterval(function () {
+        slotText.textContent = fortunes[Math.floor(Math.random() * fortunes.length)].title;
+        count++;
+        if (count >= totalSpins - 3) { clearInterval(spinTimer); slowDown(count, totalSpins - count, finalResult); }
+      }, 70);
+    }
+    function draw() {
+      if (isSpinning) return;
+      isSpinning = true; drawBtn.disabled = true; resultCard.classList.remove('show'); box.classList.remove('hidden-flash');
+      var f = fortunes[Math.floor(Math.random() * fortunes.length)];
+      var data = { date: getToday(), index: fortunes.indexOf(f) };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+      spin(f);
+    }
+
+    // Fortune toggle — always expands
+    var fortuneToggle = document.getElementById('fortuneToggle');
+    var fortuneToggleWrap = document.getElementById('fortuneToggleWrap');
+    if (fortuneToggle) {
+      fortuneToggle.addEventListener('change', function () {
+        fortuneToggle.checked = false;
+        box.classList.remove('fortune-hidden');
+        if (fortuneToggleWrap) fortuneToggleWrap.classList.add('toggle-hidden');
+      });
+    }
+    // Collapse button hides fortune
+    var collapseBtn = document.getElementById('fortuneCollapseBtn');
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        box.classList.add('fortune-hidden');
+        if (fortuneToggleWrap) fortuneToggleWrap.classList.remove('toggle-hidden');
+      });
+    }
+    if (fortuneToggleWrap) fortuneToggleWrap.classList.add('toggle-hidden');
+
+    // ▲ button — collapse content
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function (e) { e.stopPropagation(); box.classList.toggle('collapsed'); });
+    }
+    drawBtn.addEventListener('click', function (e) { e.stopPropagation(); if (isSpinning) return; draw(); });
+
+    // Restore if drawn today
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+    if (saved) {
+      try {
+        var data = JSON.parse(saved);
+        if (data.date === getToday() && data.index != null && fortunes[data.index]) {
+          var f = fortunes[data.index];
+          slotText.textContent = f.title; slotText.classList.add('result');
+          renderResult(f); resultCard.classList.add('show'); drawBtn.textContent = '再抽一张';
+          if (f.title === '隐藏款') box.classList.add('hidden-flash');
+        }
+      } catch (e) {}
+    }
+  })();
+
+  // ================================================================
+  //  SETTINGS PANEL — theme color, brightness, blur, wallpaper
+  // ================================================================
+  (function () {
+    var STORAGE_KEY = 'birthday_settings';
+    var DEFAULTS = { themeColor: '#E8B5B5', brightness: 5, blur: 3, wallpaper: 'punklorde' };
+    var STATIC_WALLPAPERS = [
+      { id: 'static-0', name: '安逸舒适', src: 'img/wallpaper/static/image-.png' }
+    ];
+    var DYNAMIC_WALLPAPERS = [
+      { id: 'punklorde', name: 'Punklorde', src: 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4' }
+    ];
+    function findAllWallpapers() { return STATIC_WALLPAPERS.concat(DYNAMIC_WALLPAPERS); }
+    function findWallpaper(id) { var all = findAllWallpapers(); for (var i = 0; i < all.length; i++) { if (all[i].id === id) return all[i]; } return null; }
+
+    var settings = {}, currentWpTab = 'static';
+    var gearBtn = document.getElementById('settingsGearBtn');
+    var overlay = document.getElementById('settingsOverlay');
+    if (!gearBtn || !overlay) return;
+
+    var root = document.documentElement;
+    var bgVideo2 = document.getElementById('bgVideo2');
+    var bgVideo2Overlay = document.getElementById('bgVideo2Overlay');
+
+    function loadSettings() {
+      var saved = null;
+      try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+      if (saved) { try { settings = JSON.parse(saved); } catch (e) { settings = {}; } }
+      if (!settings.themeColor) settings.themeColor = DEFAULTS.themeColor;
+      if (settings.brightness == null) settings.brightness = DEFAULTS.brightness;
+      if (settings.blur == null) settings.blur = DEFAULTS.blur;
+      if (!settings.wallpaper) settings.wallpaper = DEFAULTS.wallpaper;
+    }
+    function saveSettings() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch (e) {} }
+
+    function applySettings() {
+      root.style.setProperty('--theme-accent', settings.themeColor);
+      root.style.setProperty('--bg-brightness', (settings.brightness / 100));
+      root.style.setProperty('--glass-blur', settings.blur + 'px');
+      var wp = findWallpaper(settings.wallpaper);
+      if (wp) {
+        var isStatic = wp.id.indexOf('static-') === 0;
+        if (isStatic) {
+          if (bgVideo2) { bgVideo2.style.display = 'none'; bgVideo2.pause(); }
+          if (bgVideo2Overlay) { bgVideo2Overlay.style.backgroundImage = 'url(' + wp.src + ')'; bgVideo2Overlay.style.backgroundSize = 'cover'; bgVideo2Overlay.style.backgroundPosition = 'center'; }
+        } else {
+          if (bgVideo2Overlay) { bgVideo2Overlay.style.backgroundImage = ''; bgVideo2Overlay.style.background = ''; }
+          if (bgVideo2) { bgVideo2.style.display = ''; bgVideo2.src = wp.src || ''; bgVideo2.play().catch(function () {}); }
+        }
+      }
+    }
+
+    function renderWallpaperGrid(tab) {
+      var grid = document.getElementById('wallpaperGrid');
+      if (!grid) return;
+      if (!tab) tab = currentWpTab; else currentWpTab = tab;
+      var subtabs = document.querySelectorAll('.wallpaper-subtab');
+      subtabs.forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-wptab') === tab); });
+      var list = tab === 'static' ? STATIC_WALLPAPERS : DYNAMIC_WALLPAPERS;
+      var isStatic = tab === 'static';
+      grid.innerHTML = '';
+      list.forEach(function (wp) {
+        var item = document.createElement('div');
+        item.className = 'wallpaper-item' + (wp.id === settings.wallpaper ? ' selected' : '');
+        item.setAttribute('data-id', wp.id);
+        if (isStatic) { var img = document.createElement('img'); img.className = 'wallpaper-preview'; img.src = wp.src; img.alt = wp.name; img.loading = 'lazy'; item.appendChild(img); }
+        else { var prev = document.createElement('div'); prev.className = 'wallpaper-preview'; prev.style.cssText = 'background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:1.5rem'; prev.textContent = '🎬'; item.appendChild(prev); }
+        var label = document.createElement('div'); label.className = 'wallpaper-label'; label.textContent = wp.name; item.appendChild(label);
+        item.addEventListener('click', function () {
+          var id = this.getAttribute('data-id'); settings.wallpaper = id;
+          var items = grid.querySelectorAll('.wallpaper-item'); items.forEach(function (el) { el.classList.remove('selected'); });
+          this.classList.add('selected'); applySettings(); saveSettings();
+        });
+        grid.appendChild(item);
+      });
+    }
+
+    function openSettings() {
+      overlay.classList.add('active'); document.body.style.overflow = 'hidden';
+      document.getElementById('themeColorInput').value = settings.themeColor;
+      var bs = document.getElementById('brightnessSlider'); bs.value = settings.brightness; bs.style.setProperty('--range-pct', settings.brightness + '%');
+      var bls = document.getElementById('blurSlider'); bls.value = settings.blur; bls.style.setProperty('--range-pct', (settings.blur / 15 * 100) + '%');
+      document.getElementById('brightnessVal').textContent = settings.brightness + '%';
+      document.getElementById('blurVal').textContent = settings.blur + 'px';
+      renderWallpaperGrid(currentWpTab);
+    }
+    function closeSettings() { overlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+    document.getElementById('themeColorInput').addEventListener('input', function () { root.style.setProperty('--theme-accent', this.value); });
+    document.getElementById('brightnessSlider').addEventListener('input', function () {
+      root.style.setProperty('--bg-brightness', (this.value / 100)); this.style.setProperty('--range-pct', this.value + '%');
+      document.getElementById('brightnessVal').textContent = this.value + '%';
+    });
+    document.getElementById('blurSlider').addEventListener('input', function () {
+      root.style.setProperty('--glass-blur', this.value + 'px'); this.style.setProperty('--range-pct', (this.value / 15 * 100) + '%');
+      document.getElementById('blurVal').textContent = this.value + 'px';
+    });
+    document.getElementById('settingsApply').addEventListener('click', function () {
+      settings.themeColor = document.getElementById('themeColorInput').value;
+      settings.brightness = parseInt(document.getElementById('brightnessSlider').value);
+      settings.blur = parseFloat(document.getElementById('blurSlider').value);
+      saveSettings(); closeSettings();
+    });
+    document.getElementById('settingsReset').addEventListener('click', function () {
+      settings.themeColor = DEFAULTS.themeColor; settings.brightness = DEFAULTS.brightness; settings.blur = DEFAULTS.blur; settings.wallpaper = DEFAULTS.wallpaper;
+      saveSettings(); applySettings();
+      document.getElementById('themeColorInput').value = settings.themeColor;
+      var bs = document.getElementById('brightnessSlider'); bs.value = settings.brightness; bs.style.setProperty('--range-pct', settings.brightness + '%');
+      var bls = document.getElementById('blurSlider'); bls.value = settings.blur; bls.style.setProperty('--range-pct', (settings.blur / 15 * 100) + '%');
+      document.getElementById('brightnessVal').textContent = settings.brightness + '%';
+      document.getElementById('blurVal').textContent = settings.blur + 'px';
+      renderWallpaperGrid('dynamic');
+    });
+
+    document.querySelectorAll('.settings-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tab = this.getAttribute('data-tab');
+        document.querySelectorAll('.settings-tab').forEach(function (b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        document.getElementById('panelStyle').style.display = tab === 'style' ? '' : 'none';
+        document.getElementById('panelWallpaper').style.display = tab === 'wallpaper' ? '' : 'none';
+        document.getElementById('panelInstructions').style.display = tab === 'instructions' ? '' : 'none';
+        if (tab === 'wallpaper') renderWallpaperGrid(currentWpTab);
+      });
+    });
+    document.querySelectorAll('.wallpaper-subtab').forEach(function (btn) {
+      btn.addEventListener('click', function () { renderWallpaperGrid(this.getAttribute('data-wptab')); });
+    });
+
+    gearBtn.addEventListener('click', openSettings);
+    document.getElementById('settingsClose').addEventListener('click', closeSettings);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeSettings(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && overlay.classList.contains('active')) closeSettings(); });
+
+    loadSettings(); applySettings();
+  })();
+
+  // ================================================================
+  //  TEA WHEEL — spinning wheel afternoon tea picker
+  // ================================================================
+  (function () {
+    var STORAGE_KEY = 'tea_wheel_items';
+    var DEFAULT_ITEMS = ['瑞幸','古茗','沪上阿姨','茶百道','茶理宜世','霸王茶姬','喜茶','奈雪','一点点','库迪','找点其他好喝的'];
+
+    var canvas = document.getElementById('teaWheelCanvas');
+    var spinBtn = document.getElementById('teaSpinBtn');
+    var resultEl = document.getElementById('teaResult');
+    var addInput = document.getElementById('teaAddInput');
+    var addBtn = document.getElementById('teaAddBtn');
+    var itemsList = document.getElementById('teaItemsList');
+    var editToggleBtn = document.getElementById('teaEditToggleBtn');
+    var editSection = document.getElementById('teaEditSection');
+    if (!canvas || !spinBtn) return;
+
+    var ctx = canvas.getContext('2d');
+    var items = [];
+    var currentAngle = 0;
+    var spinning = false;
+    var animFrame = null;
+
+    // Colors for segments
+    var COLORS = [
+      '#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF8C42',
+      '#9B59B6','#1ABC9C','#E74C3C','#3498DB','#F39C12',
+      '#E91E63','#00BCD4','#FF5722','#8BC34A','#673AB7',
+      '#FF9800','#03A9F4','#CDDC39','#795548','#607D8B'
+    ];
+
+    function loadItems() {
+      var saved = null;
+      try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+      if (saved) {
+        try { var arr = JSON.parse(saved); if (arr.length > 0) items = arr; else items = DEFAULT_ITEMS.slice(); }
+        catch (e) { items = DEFAULT_ITEMS.slice(); }
+      } else {
+        items = DEFAULT_ITEMS.slice();
+      }
+    }
+
+    function saveItems() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch (e) {}
+    }
+
+    function drawWheel(angle) {
+      var w = canvas.width;
+      var h = canvas.height;
+      var cx = w / 2;
+      var cy = h / 2;
+      var r = Math.min(cx, cy) - 4;
+      var segAngle = (2 * Math.PI) / items.length;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Draw segments
+      for (var i = 0; i < items.length; i++) {
+        var startAngle = angle + i * segAngle;
+        var endAngle = startAngle + segAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, r, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = COLORS[i % COLORS.length];
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw text along the segment
+        ctx.save();
+        ctx.translate(cx, cy);
+        var midAngle = startAngle + segAngle / 2;
+        ctx.rotate(midAngle);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px "PingFang SC","Microsoft YaHei",Roboto,sans-serif';
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = 3;
+        var textX = r - 12;
+        // If text would be upside-down, flip it
+        var normMid = midAngle % (2 * Math.PI);
+        if (normMid < 0) normMid += 2 * Math.PI;
+        if (normMid > Math.PI / 2 && normMid < 3 * Math.PI / 2) {
+          ctx.rotate(Math.PI);
+          textX = -(r - 12);
+          ctx.textAlign = 'left';
+        }
+        ctx.fillText(items[i], textX, 4);
+        ctx.restore();
+      }
+
+      // Center circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function getResult(angle) {
+      var segAngle = (2 * Math.PI) / items.length;
+      // Pointer is at top of wheel = -PI/2 in canvas coordinates
+      // Find which segment the pointer hits in the rotated wheel:
+      // wheel-local angle at pointer = screen pointer angle - wheel rotation
+      var local = (-Math.PI / 2 - angle) % (2 * Math.PI);
+      if (local < 0) local += 2 * Math.PI;
+      var idx = Math.floor(local / segAngle) % items.length;
+      return items[idx];
+    }
+
+    function spin() {
+      if (spinning) return;
+      spinning = true;
+      spinBtn.disabled = true;
+      resultEl.textContent = '...';
+
+      var velocity = 15 + Math.random() * 20; // random initial speed
+      var friction = 0.985;
+      var minVelocity = 0.05;
+
+      function animate() {
+        currentAngle += velocity;
+        velocity *= friction;
+        drawWheel(currentAngle);
+
+        if (velocity > minVelocity) {
+          animFrame = requestAnimationFrame(animate);
+        } else {
+          // Stopped
+          spinning = false;
+          spinBtn.disabled = false;
+          var result = getResult(currentAngle);
+          resultEl.textContent = result;
+          animFrame = null;
+        }
+      }
+
+      if (animFrame) cancelAnimationFrame(animFrame);
+      animate();
+    }
+
+    function renderItemsList() {
+      if (!itemsList) return;
+      itemsList.innerHTML = '';
+      items.forEach(function (item, i) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span>' + (i + 1) + '. ' + item + '</span>' +
+          '<button class="tea-item-delete" data-idx="' + i + '" title="删除">✕</button>';
+        itemsList.appendChild(li);
+      });
+
+      // Delete handlers
+      itemsList.querySelectorAll('.tea-item-delete').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var idx = parseInt(this.getAttribute('data-idx'));
+          if (items.length <= 2) return; // minimum 2 items
+          items.splice(idx, 1);
+          saveItems();
+          drawWheel(currentAngle);
+          renderItemsList();
+        });
+      });
+    }
+
+    function addItem() {
+      var val = addInput.value.trim();
+      if (!val || items.length >= 20) return;
+      items.push(val);
+      addInput.value = '';
+      saveItems();
+      drawWheel(currentAngle);
+      renderItemsList();
+    }
+
+    // Event bindings
+    spinBtn.addEventListener('click', spin);
+    if (addBtn) addBtn.addEventListener('click', addItem);
+    if (addInput) {
+      addInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') addItem();
+      });
+    }
+    // Edit toggle
+    if (editToggleBtn && editSection) {
+      editToggleBtn.addEventListener('click', function () {
+        var isOpen = editSection.style.display !== 'none';
+        editSection.style.display = isOpen ? 'none' : '';
+        editToggleBtn.textContent = isOpen ? '不符合你的需求？那你自己改吧' : '改好了，转起来！';
+        var card = document.getElementById('teaWheelCard');
+        if (card) { card.classList.toggle('editing', !isOpen); }
+      });
+    }
+
+    // Init
+    loadItems();
+    drawWheel(currentAngle);
+    renderItemsList();
+  })();
+
+  // ================================================================
   //  CLEAR-SCREEN TOGGLE — hide/show cards with floating switch
   // ================================================================
   (function () {
     var toggle     = document.getElementById('clearScreenToggle');
     var card       = document.querySelector('.card');
     var timeCard   = document.querySelector('.time-card');
+    var fortuneBox = document.getElementById('fortuneBox');
     var toggleWrap = document.getElementById('clearScreenToggleWrap');
 
     if (!toggle || !card || !timeCard) return;
 
-    // Sync light/dark label on the toggle wrap
     function updateWrapStyle(isClear) {
       if (isClear) {
         toggleWrap.style.background = 'rgba(80, 80, 80, 0.65)';
@@ -1059,8 +1593,10 @@
       var isClear = toggle.checked;
       card.classList.toggle('clear-screen-hidden', isClear);
       timeCard.classList.toggle('clear-screen-hidden', isClear);
+      if (fortuneBox) fortuneBox.classList.toggle('clear-screen-hidden', isClear);
+      var teaWheel = document.getElementById('teaWheelCard');
+      if (teaWheel) teaWheel.classList.toggle('clear-screen-hidden', isClear);
       updateWrapStyle(isClear);
-      // Close playlist dropdown if open
       if (isClear) {
         var dd = document.getElementById('playlistDropdown');
         if (dd && dd.classList.contains('open')) dd.classList.remove('open');
