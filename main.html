@@ -202,15 +202,15 @@
       <!-- Divider -->
       <div class="divider"></div>
 
-      <!-- Greeting -->
-      <div class="greeting">
-        <h1>🎂 欢迎光临 :)</h1>
-        <p class="subtitle">很高兴见到你<br>这里什么也没有，只有一份小小的祝福 ✨</p>
-      </div>
-
       <!-- Typewriter -->
       <div class="typewriter-wrap">
         <span class="typewriter" id="typewriter"></span><span class="typewriter-cursor"></span>
+      </div>
+
+      <!-- Greeting -->
+      <div class="greeting">
+        <h1>🎂 欢迎光临 :)</h1>
+        <p class="subtitle"><a href="chatroom-demo.html" target="_blank" rel="noopener">很高兴见到你<br>这里什么也没有，只有一份小小的祝福 ✨</a></p>
       </div>
 
       </div><!-- /card-right -->
@@ -421,12 +421,19 @@
     // Loading & swipe gate
     var videoLoaded   = false;
     var video2Loaded  = false;
+    var audioLoaded   = false;       // audio track buffered & ready to play
     var playlistReady = false;
-    var allReady      = false;       // video1 + playlist loaded, 15s timer started
+    var allReady      = false;       // video1 + audio + playlist loaded, 15s timer started
     var readyTime     = 0;           // Date.now() when playback started
     var SWIPE_DELAY   = 15000;       // 15 seconds forced viewing before swipe
     var countdownTimer = null;       // setTimeout id for delayed swipe unlock
     var instructionsVisible = false; // instructions panel is shown
+
+    // Detect page reload — if user refreshes, skip straight to second page
+    var isPageReload = false;
+    try {
+      isPageReload = (performance.getEntriesByType('navigation')[0] || {}).type === 'reload';
+    } catch (e) {}
 
     // ============================================================
     //  UTILS
@@ -798,7 +805,8 @@
     //  INIT — video1 + playlist trigger playback + 15s countdown
     // ============================================================
     function tryStartPlayback() {
-      if (!videoLoaded || !playlistReady) return;
+      // ALL three must be ready: video buffered, playlist fetched, audio track buffered
+      if (!videoLoaded || !playlistReady || !audioLoaded) return;
       if (allReady) return;
       allReady = true;
       readyTime = Date.now();
@@ -814,6 +822,7 @@
       updateVolIcon(0.7);
 
       // Play video and audio at the same time for sync
+      // Both are guaranteed to be buffered (canplaythrough) before we reach here
       var videoPromise = bgVideo && bgVideo.paused
         ? bgVideo.play().catch(function (e) { console.warn('视频自动播放失败:', e); })
         : Promise.resolve();
@@ -917,6 +926,74 @@
     }
 
     function init() {
+      // ============================================================
+      //  RELOAD FAST-PATH — skip first page, go straight to second
+      // ============================================================
+      if (isPageReload) {
+        // Set all state as ready
+        videoLoaded = true;
+        video2Loaded = true;
+        audioLoaded = true;
+        playlistReady = true;
+        allReady = true;
+        transitioned = true;
+
+        // Hide first-page elements
+        musicPlayerEl.style.display = 'none';
+        loadingOverlay.style.display = 'none';
+        loadingOverlay.classList.add('fadeout');
+        if (bgVideo) { bgVideo.style.display = 'none'; bgVideo.classList.add('exited'); }
+        if (videoFallback) { videoFallback.style.display = 'none'; videoFallback.classList.add('exited'); }
+        swipeHint.style.display = 'none';
+        musicLoadingEl.style.display = 'none';
+
+        // Show second page immediately
+        mainWrapper.classList.add('entered');
+        mainWrapper.style.overflowY = 'auto';
+        document.body.style.overflow = 'auto';
+        musicPlayerEl.classList.add('visible');
+        musicPlayerEl.style.opacity = '';
+        musicPlayerEl.style.pointerEvents = '';
+
+        // Set video sources — only need second page video
+        bgVideo2.src = 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4';
+        bgVideo2.play().catch(function () {});
+
+        // Ensure second background video loops
+        bgVideo2.addEventListener('ended', function () {
+          bgVideo2.currentTime = 0;
+          bgVideo2.play().catch(function () {});
+        });
+
+        // Fetch playlist + play music
+        fetchPlaylist().then(function (data) {
+          playlist = data;
+          currentIndex = 0;
+          renderPlaylist();
+          var first = playlist[0];
+          overlayTitle.textContent = first.title || '未知歌曲';
+          overlayArtist.textContent = first.author || '未知艺术家';
+          if (first.pic) { miniCover.style.backgroundImage = 'url(' + first.pic + ')'; }
+          audioEl.src = first.url;
+          audioEl.volume = 0.7;
+          volSlider.value = 70;
+          volSlider.style.setProperty('--vp', '70%');
+          updateVolIcon(0.7);
+          musicPlayerEl.style.display = 'flex';
+          audioEl.play().then(function () { setPlaying(true); }).catch(function () {});
+          console.log('✅ 刷新后直接进入第二页，歌单：' + playlist.length + ' 首');
+        }).catch(function (err) {
+          console.error('❌ 歌单失败:', err);
+          musicErrorEl.style.display = 'block';
+          musicPlayerEl.style.display = 'flex';
+        });
+
+        return; // skip normal init
+      }
+
+      // ============================================================
+      //  NORMAL FIRST-TIME INIT
+      // ============================================================
       musicPlayerEl.style.display = 'none';
       loadingOverlay.style.display = 'block';
 
@@ -973,6 +1050,25 @@
         if (first.pic) { miniCover.style.backgroundImage = 'url(' + first.pic + ')'; }
         audioEl.src = first.url;
         audioEl.load();
+
+        // Wait for audio track to be fully buffered before allowing playback
+        // This ensures video (mv.mp4) and audio start in perfect sync
+        if (audioEl.readyState >= 3) {
+          // Already buffered enough — ready immediately
+          if (!audioLoaded) { audioLoaded = true; tryStartPlayback(); }
+        } else {
+          audioEl.addEventListener('canplaythrough', function () {
+            if (!audioLoaded) { audioLoaded = true; tryStartPlayback(); }
+          }, { once: true });
+          // Fallback: if audio takes too long, proceed anyway after 10s
+          setTimeout(function () {
+            if (!audioLoaded) {
+              console.warn('音频缓冲超时，继续');
+              audioLoaded = true;
+              tryStartPlayback();
+            }
+          }, 10000);
+        }
 
         tryStartPlayback();
         console.log('✅ 歌单加载完成：' + playlist.length + ' 首');
@@ -1070,14 +1166,18 @@
     }
 
     svgFrame.addEventListener('mouseenter', function () {
-      if (triggered) return;
+      if (triggered) {
+        // One more hover after meeting display: schedule a 2s revert to clock
+        if (revertTimer) clearTimeout(revertTimer);
+        revertTimer = setTimeout(revertToClock, 2000);
+        return;
+      }
       hoverCount++;
       if (hoverCount >= 5) {
         triggered = true;
         if (window._clockInterval) { clearInterval(window._clockInterval); window._clockInterval = null; }
         updateMeetingDisplay();
-        if (revertTimer) clearTimeout(revertTimer);
-        revertTimer = setTimeout(revertToClock, 5000);
+        // No auto-revert — user must hover one more time to restore
       }
     });
   })();
@@ -1596,6 +1696,8 @@
       if (fortuneBox) fortuneBox.classList.toggle('clear-screen-hidden', isClear);
       var teaWheel = document.getElementById('teaWheelCard');
       if (teaWheel) teaWheel.classList.toggle('clear-screen-hidden', isClear);
+      var socialBtns = document.querySelector('.social-btns-row');
+      if (socialBtns) socialBtns.classList.toggle('clear-screen-hidden', isClear);
       updateWrapStyle(isClear);
       if (isClear) {
         var dd = document.getElementById('playlistDropdown');
