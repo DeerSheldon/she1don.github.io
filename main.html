@@ -26,6 +26,7 @@
   <div id="loadingOverlay">
     <div id="loadingSpinner"></div>
     <div id="loadingText">正在加载...</div>
+    <div id="loadingTimeoutHint"><span>（这首mv不用聽完哦，<br>如果还显示正在加载的话，可能是网页卡住了，<br>你可以复制最开始的网页换个浏览器重新打开页面试试，或者就用这个浏览器重新打开一遍也可以）</span></div>
   </div>
 
   <!-- ============================================================
@@ -790,7 +791,9 @@
       // Only unlock when video2 is loaded AND 15s have passed
       if (!allReady || !video2Loaded || (Date.now() - readyTime < SWIPE_DELAY)) return;
       if (countdownTimer) { clearTimeout(countdownTimer); countdownTimer = null; }
-      // Hide loading overlay
+      // Hide loading overlay + timeout hint
+      var timeoutHint = document.getElementById('loadingTimeoutHint');
+      if (timeoutHint) { timeoutHint.classList.remove('show'); }
       loadingOverlay.classList.add('fadeout');
       setTimeout(function () { loadingOverlay.style.display = 'none'; }, 600);
       // Show swipe hint
@@ -1079,6 +1082,14 @@
         setTimeout(function () { loadingOverlay.style.display = 'none'; }, 600);
         musicErrorEl.style.display = 'block';
       });
+
+      // Show timeout hint after 20s if still loading
+      var timeoutHint = document.getElementById('loadingTimeoutHint');
+      setTimeout(function () {
+        if (!allReady && timeoutHint) {
+          timeoutHint.classList.add('show');
+        }
+      }, 20000);
     }
 
     // ============================================================
@@ -1225,7 +1236,7 @@
       { title: "朋克养生", good: "多喝热水", bad: "熬夜", item: "润喉糖", stars: 3 },
       { title: "盲盒玄学", good: "抽一个盲盒", bad: "看余额", item: "还没拆的那只", stars: 5 },
       { title: "极简主义", good: "什么都不做", bad: "做多余的事", item: "空气", stars: 6 },
-      { title: "隐藏款", good: "给在意的人发个表情包", bad: "想太多", item: "一段轻松的对话", stars: 5 }
+      { title: "隐藏款！！！", good: "给在意的人发个表情包", bad: "想太多", item: "一段轻松的对话", stars: 5 }
     ];
     var STORAGE_KEY = 'fortune_daily_v2';
     var box = document.getElementById('fortuneBox');

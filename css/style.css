@@ -116,6 +116,25 @@ html, body {
   font-size: 0.95rem;
 }
 
+#loadingTimeoutHint {
+  display: none;
+  margin-top: 16px;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+#loadingTimeoutHint.show {
+  display: block;
+  opacity: 0.75;
+}
+
+#loadingTimeoutHint span {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  letter-spacing: 1px;
+}
+
 /* ============================================================
    SWIPE HINT — hidden until second page background loaded
 ============================================================ */
