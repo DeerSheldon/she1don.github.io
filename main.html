@@ -1369,9 +1369,15 @@
         var isStatic = wp.id.indexOf('static-') === 0;
         if (isStatic) {
           if (bgVideo2) { bgVideo2.style.display = 'none'; bgVideo2.pause(); }
-          if (bgVideo2Overlay) { bgVideo2Overlay.style.backgroundImage = 'url(' + wp.src + ')'; bgVideo2Overlay.style.backgroundSize = 'cover'; bgVideo2Overlay.style.backgroundPosition = 'center'; }
+          if (bgVideo2Overlay) {
+            // Use gradient overlay ON TOP of image so brightness dimming works
+            bgVideo2Overlay.style.background = '';
+            bgVideo2Overlay.style.backgroundImage = 'linear-gradient(rgba(0,0,0,var(--bg-brightness)),rgba(0,0,0,var(--bg-brightness))), url(' + wp.src + ')';
+            bgVideo2Overlay.style.backgroundSize = 'cover, cover';
+            bgVideo2Overlay.style.backgroundPosition = 'center, center';
+          }
         } else {
-          if (bgVideo2Overlay) { bgVideo2Overlay.style.backgroundImage = ''; bgVideo2Overlay.style.background = ''; }
+          if (bgVideo2Overlay) { bgVideo2Overlay.style.backgroundImage = ''; bgVideo2Overlay.style.background = ''; bgVideo2Overlay.style.backgroundSize = ''; bgVideo2Overlay.style.backgroundPosition = ''; }
           if (bgVideo2) { bgVideo2.style.display = ''; bgVideo2.src = wp.src || ''; bgVideo2.play().catch(function () {}); }
         }
       }
