@@ -1167,7 +1167,7 @@
 
     svgFrame.addEventListener('mouseenter', function () {
       if (triggered) {
-        // One more hover after meeting display: schedule a 2s revert to clock
+        // Hovering again during the 2s window resets the timer
         if (revertTimer) clearTimeout(revertTimer);
         revertTimer = setTimeout(revertToClock, 2000);
         return;
@@ -1177,7 +1177,8 @@
         triggered = true;
         if (window._clockInterval) { clearInterval(window._clockInterval); window._clockInterval = null; }
         updateMeetingDisplay();
-        // No auto-revert — user must hover one more time to restore
+        // Auto-revert to clock after 2 seconds
+        revertTimer = setTimeout(revertToClock, 2000);
       }
     });
   })();
