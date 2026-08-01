@@ -1330,10 +1330,12 @@
     var STORAGE_KEY = 'birthday_settings';
     var DEFAULTS = { themeColor: '#E8B5B5', brightness: 5, blur: 3, wallpaper: 'punklorde' };
     var STATIC_WALLPAPERS = [
-      { id: 'static-0', name: '安逸舒适', src: 'img/wallpaper/static/image-.png' }
+      { id: 'static-0', name: '安逸舒适', src: 'img/wallpaper/static/image-.png' },
+      { id: 'static-1', name: 'test', src: 'img/wallpaper/static/test.png' }
     ];
     var DYNAMIC_WALLPAPERS = [
-      { id: 'punklorde', name: 'Punklorde', src: 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4' }
+      { id: 'punklorde', name: 'Punklorde', src: 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4' },
+      { id: 'dynamic-1', name: '爱上雷神', src: 'img/wallpaper/dynamic/爱上雷神.mp4' }
     ];
     function findAllWallpapers() { return STATIC_WALLPAPERS.concat(DYNAMIC_WALLPAPERS); }
     function findWallpaper(id) { var all = findAllWallpapers(); for (var i = 0; i < all.length; i++) { if (all[i].id === id) return all[i]; } return null; }
