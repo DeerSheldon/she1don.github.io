@@ -8,7 +8,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: max(20px, env(safe-area-inset-top))
+           max(20px, env(safe-area-inset-right))
+           max(20px, env(safe-area-inset-bottom))
+           max(20px, env(safe-area-inset-left));
 }
 
 /* ===== 页面容器（模拟 2005 年网站的信息区块） ===== */
@@ -259,22 +262,28 @@ body {
   body { padding: 0; }
   .page-card {
     height: 100vh;
+    height: 100dvh;
+    min-height: 0;
     max-width: 100%;
     border: none;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   .chatroom-messages {
     padding: 10px 12px;
   }
   .chatroom-input {
     flex-wrap: wrap;
-    padding: 8px 10px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
     gap: 6px;
   }
   .chatroom-input input {
     max-width: none;
     flex: 1 1 100%;
+    font-size: 16px; /* prevent iOS zoom on focus */
   }
   .send-btn {
-    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    flex: 1 1 45%;
   }
 }

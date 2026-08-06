@@ -8,6 +8,10 @@
   --glass-blur: 3px;
   --theme-accent: #E8B5B5;
   --star-color: #E8B5B5;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,6 +25,10 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: pan-y;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 /* ============================================================
@@ -267,37 +275,111 @@ html, body {
 }
 
 /* ============================================================
-   MOBILE — stack vertically
+   MOBILE — stack vertically (≤768px)
 ============================================================ */
 @media (max-width: 768px) {
+  /* -- Page fallback: ensure scrollable even if JS never runs -- */
+  html, body {
+    overflow: auto;
+    height: auto;
+    min-height: 100%;
+  }
+
+  /* -- Main wrapper: vertical stack + iOS smooth scroll ---- */
   #mainWrapper {
     flex-direction: column;
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
+
+  /* -- Left column: auto height, natural flow ---- */
   .main-left {
     width: 100%;
     height: auto;
     flex-shrink: 1;
     flex-direction: column;
-    padding: 12px 10px;
+    padding: 170px 10px 12px;
     gap: 10px;
   }
+
+  /* -- Right column: auto height, no independent scroll ---- */
   .main-right {
     width: 100%;
     height: auto;
     overflow-y: visible;
     padding: 12px 10px;
   }
-  .main-right .time-card {
-    max-width: 100%;
-  }
+
+  /* -- Fortune box: reset desktop-large margin-top ---- */
   .main-left .fortune-box {
+    margin-top: 0;
+    margin-bottom: 0;
     max-width: 100%;
     width: 100%;
   }
+
+  /* -- Time card: full width ---- */
+  .main-right .time-card {
+    max-width: 100%;
+  }
+
+  /* -- Hide desktop floating UI elements ---- */
+  .fortune-collapse-btn {
+    display: none !important;
+  }
+  .fortune-toggle-wrap {
+    display: none !important;
+  }
   .main-right .clear-screen-toggle-wrap {
     display: none;
+  }
+
+  /* -- Loading overlay & swipe hint: reposition for mobile ---- */
+  #loadingOverlay {
+    bottom: 50px;
+  }
+  #swipeHint {
+    bottom: 24px;
+  }
+
+  /* -- Overlay modals: scrollable, never clipped -- */
+  .settings-card {
+    margin: auto;
+    width: calc(100vw - 24px);
+    max-width: 540px;
+    max-height: calc(100vh - var(--safe-top) - var(--safe-bottom) - 24px);
+    overflow-y: auto;
+    padding: 36px 20px 28px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .instructions-card {
+    margin: auto;
+    width: calc(100vw - 24px);
+    max-width: 540px;
+    max-height: calc(100vh - var(--safe-top) - var(--safe-bottom) - 24px);
+    overflow-y: auto;
+    padding: 36px 20px 28px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* -- Touch targets: minimum 44px for accessibility -- */
+  .social-icon-btn { min-width: 44px; min-height: 44px; }
+  .fortune-draw-btn { min-height: 44px; }
+  .tea-spin-btn { min-height: 44px; padding: 12px 28px; }
+  .tea-edit-input-row button { width: 44px; height: 44px; }
+  #settingsClose, #instructionsClose { width: 44px; height: 44px; }
+  .settings-tab { padding: 12px 0; }
+  .settings-btn { padding: 13px 24px; }
+
+  /* -- Native range sliders: disable pan-y so they drag correctly -- */
+  input[type="range"] { touch-action: auto; }
+
+  /* -- Wallpaper grid: single column on mobile ---- */
+  .wallpaper-grid {
+    grid-template-columns: 1fr;
+    max-height: 200px;
   }
 }
 
@@ -1567,8 +1649,8 @@ body.instructions-mode .settings-gear-btn {
 ============================================================ */
 #musicPlayerFloating {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: calc(20px + var(--safe-top));
+  left: calc(20px + var(--safe-left));
   z-index: 100;
   transition: opacity 0.5s;
   opacity: 0;
@@ -2072,13 +2154,21 @@ body.instructions-mode #playlistDropdown {
    RESPONSIVE
 ============================================================ */
 @media (max-width: 640px) {
+  /* -- Main layout: reduce top padding for smaller music player (100px disc) -- */
+  .main-left {
+    padding-top: 130px;
+  }
+
+  /* -- Time card: stacked, fluid width -- */
   .time-card {
-    width: 280px;
-    height: 270px;
-    top: 10px;
-    right: 10px;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
     border-radius: 14px;
-    padding: 8px 10px 12px;
+    padding: 10px 14px 14px;
+    position: relative;
+    top: auto;
+    right: auto;
   }
   .time-card-left { width: 100%; height: 150px; }
   .time-card-left .svg-frame { transform: scale(0.55); height: 150px; }
@@ -2090,64 +2180,44 @@ body.instructions-mode #playlistDropdown {
   .card {
     padding: 18px 14px 22px;
     max-width: 420px;
-    margin-top: 40px;
+    margin-top: 16px;
   }
   .card-right { min-width: 0; width: 100%; }
 
+  /* -- Music player: 100px disc -- */
   .mini-disc-wrapper { width: 100px; height: 100px; }
   .mini-cover { top: 6px; left: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
   .mini-center { width: 9px; height: 9px; }
   .player-overlay { width: 170px; padding: 12px 14px; gap: 8px; }
 
-  .clear-screen-toggle-wrap {
-    transform: translateY(-50%) translateX(62%);
-    padding: 8px 14px 8px 10px;
-    gap: 6px;
-    border-radius: 26px 0 0 26px;
-  }
-  .clear-screen-toggle-wrap .toggle-label { font-size: 0.65rem; }
-  .toggle-switch { width: 36px; height: 20px; }
-  .toggle-switch .toggle-track { border-radius: 10px; }
-  .toggle-switch .toggle-knob { width: 16px; height: 16px; }
-  .toggle-switch input:checked ~ .toggle-knob { transform: translateX(16px); }
-
-  .instructions-card {
-    max-width: 540px;
-    padding: 24px 18px 32px;
-  }
-  .instructions-card h2 { font-size: 1.4rem; margin-bottom: 12px; }
-  .instructions-card ul li { font-size: 1rem; line-height: 1.8; }
-  .instructions-card .instructions-footer { font-size: 0.9rem; line-height: 1.8; }
-  #instructionsClose { width: 30px; height: 30px; top: 10px; right: 10px; font-size: 0.85rem; }
-
+  /* -- Fortune box: fluid, no absolute positioning -- */
   .fortune-box {
-    width: 250px;
-    top: 150px;
-    left: 0;
+    width: 100%;
+    max-width: 100%;
     border-radius: 14px;
     padding: 12px 14px 16px;
-    transform: translateX(0);
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
   }
   .fortune-box-header { margin-bottom: 10px; }
   .fortune-box-header h2 { font-size: 0.8rem; letter-spacing: 1px; }
   .fortune-box-toggle { width: 18px; height: 18px; font-size: 8px; }
-  .fortune-toggle-wrap {
-    padding: 8px 12px 8px 14px;
-    gap: 6px;
-    border-radius: 0 26px 26px 0;
-  }
-  .fortune-toggle-wrap .toggle-label { font-size: 0.65rem; }
   .fortune-slot-window { height: 40px; line-height: 40px; margin-bottom: 10px; }
   .fortune-slot-text { font-size: 0.95rem; }
   .fortune-result-title { font-size: 1rem; margin-bottom: 8px; }
   .fortune-result-row { font-size: 0.72rem; padding: 5px 0; }
   .fortune-draw-btn { font-size: 0.78rem; padding: 9px; }
-  .fortune-collapse-btn { width: 22px; height: 40px; font-size: 8px; border-radius: 0 6px 6px 0; }
   .social-icon-btn { width: 34px; height: 34px; }
   .social-icon-btn.settings-gear-btn { font-size: 1.2rem; }
   .social-icon-btn svg { width: 20px; height: 20px; }
-  .settings-card { max-width: 700px; padding: 32px 24px 28px; }
+
+  /* -- Settings card -- */
+  .settings-card { max-width: 100%; padding: 32px 24px 28px; }
   .settings-card h2 { font-size: 1.2rem; }
+
+  /* -- Tea wheel -- */
   .tea-wheel-card { max-width: 280px; padding: 14px 16px 16px; }
   .tea-wheel-card.editing { max-width: 500px; }
   .tea-wheel-container { width: 220px; height: 220px; }
@@ -2156,13 +2226,24 @@ body.instructions-mode #playlistDropdown {
 }
 
 @media (max-width: 480px) {
+  /* -- Main layout: reduce top padding for tiny music player (70px disc) -- */
+  .main-left {
+    padding-top: 90px;
+  }
+  .main-right {
+    padding: 8px 6px;
+  }
+
+  /* -- Time card: compact stacked -- */
   .time-card {
-    width: 220px;
-    height: 240px;
-    top: 6px;
-    right: 6px;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
     border-radius: 12px;
-    padding: 6px 8px 10px;
+    padding: 8px 10px 12px;
+    position: relative;
+    top: auto;
+    right: auto;
   }
   .time-card-left { width: 100%; height: 120px; }
   .time-card-left .svg-frame { transform: scale(0.43); height: 130px; }
@@ -2171,10 +2252,12 @@ body.instructions-mode #playlistDropdown {
   .time-card-right .clock-divider { margin: 2px auto; width: 20px; }
   .time-card-right .clock-greeting { font-size: 0.6rem; }
 
-  .card { padding: 16px 10px 20px; margin-top: 30px; }
+  .card { padding: 16px 10px 20px; margin-top: 12px; }
 
+  /* -- Music player: 70px disc, keep safe-area -- */
   #musicPlayerFloating {
-    top: 8px; left: 8px;
+    top: calc(8px + var(--safe-top));
+    left: calc(8px + var(--safe-left));
   }
   .mini-disc-wrapper { width: 70px; height: 70px; }
   .mini-cover { top: 4px; left: 4px; width: calc(100% - 8px); height: calc(100% - 8px); }
@@ -2188,49 +2271,26 @@ body.instructions-mode #playlistDropdown {
   .player-overlay .overlay-vol-btn { width: 18px; height: 18px; font-size: 8px; }
 
   #playlistDropdown {
-    top: 100px; left: 8px;
+    top: calc(90px + var(--safe-top));
+    left: calc(8px + var(--safe-left));
     max-height: 260px;
     width: 240px;
   }
 
-  .clear-screen-toggle-wrap {
-    transform: translateY(-50%) translateX(64%);
-    padding: 6px 10px 6px 8px;
-    gap: 4px;
-    border-radius: 22px 0 0 22px;
-  }
-  .clear-screen-toggle-wrap .toggle-label { font-size: 0.6rem; letter-spacing: 0.5px; }
-  .toggle-switch { width: 32px; height: 18px; }
-  .toggle-switch .toggle-track { border-radius: 9px; }
-  .toggle-switch .toggle-knob { width: 14px; height: 14px; }
-  .toggle-switch input:checked ~ .toggle-knob { transform: translateX(14px); }
-
-  .instructions-card {
-    max-width: 94vw;
-    padding: 20px 14px 28px;
-  }
-  .instructions-card h2 { font-size: 1.2rem; margin-bottom: 10px; }
-  .instructions-card ul li { font-size: 0.9rem; line-height: 1.7; }
-  .instructions-card .instructions-footer { font-size: 0.8rem; line-height: 1.7; }
-  #instructionsClose { width: 28px; height: 28px; top: 8px; right: 8px; font-size: 0.8rem; }
-
+  /* -- Fortune box: compact -- */
   .fortune-box {
-    width: 210px;
-    top: 108px;
-    left: 0;
+    width: 100%;
+    max-width: 100%;
     border-radius: 12px;
     padding: 10px 10px 14px;
-    transform: translateX(0);
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
   }
   .fortune-box-header { margin-bottom: 8px; }
   .fortune-box-header h2 { font-size: 0.7rem; letter-spacing: 1px; }
   .fortune-box-toggle { width: 16px; height: 16px; font-size: 7px; }
-  .fortune-toggle-wrap {
-    padding: 6px 10px 6px 12px;
-    gap: 4px;
-    border-radius: 0 22px 22px 0;
-  }
-  .fortune-toggle-wrap .toggle-label { font-size: 0.6rem; letter-spacing: 0.5px; }
   .fortune-slot-window { height: 34px; line-height: 34px; margin-bottom: 8px; border-radius: 8px; }
   .fortune-slot-text { font-size: 0.82rem; }
   .fortune-result-title { font-size: 0.9rem; margin-bottom: 6px; }
@@ -2238,17 +2298,122 @@ body.instructions-mode #playlistDropdown {
   .fortune-label { font-size: 0.65rem; }
   .fortune-draw-btn { font-size: 0.7rem; padding: 8px; border-radius: 8px; }
   .fortune-stars-display { font-size: 0.85rem; letter-spacing: 2px; }
-  .fortune-collapse-btn { width: 20px; height: 34px; font-size: 7px; border-radius: 0 5px 5px 0; }
   .social-icon-btn { width: 30px; height: 30px; }
   .social-icon-btn.settings-gear-btn { font-size: 1.05rem; }
   .social-icon-btn svg { width: 17px; height: 17px; }
-  .settings-card { max-width: 94vw; padding: 24px 14px 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+  /* -- Settings card -- */
+  .settings-card { max-width: 100%; padding: 24px 14px 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   .settings-card h2 { font-size: 1.1rem; }
+  .settings-tab { font-size: 0.72rem; padding: 8px 0; }
+  .settings-btn { font-size: 0.7rem; padding: 7px 16px; }
+
+  /* -- Tea wheel -- */
   .tea-wheel-card { max-width: 240px; padding: 12px 12px 14px; }
   .tea-wheel-card.editing { max-width: 94vw; }
   .tea-wheel-container { width: 180px; height: 180px; }
   .tea-wheel-header h2 { font-size: 0.75rem; }
   .tea-spin-btn { font-size: 0.7rem; padding: 6px 18px; }
-  .settings-tab { font-size: 0.72rem; padding: 8px 0; }
-  .settings-btn { font-size: 0.7rem; padding: 7px 16px; }
+}
+
+/* ============================================================
+   TINY SCREENS — ≤380px (iPhone SE, Galaxy S20, etc.)
+============================================================ */
+@media (max-width: 380px) {
+  /* -- Main layout: tighter padding -- */
+  .main-left {
+    padding: 80px 6px 8px;
+    gap: 8px;
+  }
+  .main-right {
+    padding: 6px 4px;
+  }
+
+  /* -- Music player: 56px disc -- */
+  #musicPlayerFloating {
+    top: calc(6px + var(--safe-top));
+    left: calc(6px + var(--safe-left));
+  }
+  .mini-disc-wrapper { width: 56px; height: 56px; }
+  .mini-cover { top: 3px; left: 3px; width: calc(100% - 6px); height: calc(100% - 6px); }
+  .mini-center { width: 5px; height: 5px; }
+  .player-overlay { width: 130px; padding: 8px 10px; gap: 4px; }
+  .player-overlay .overlay-title { font-size: 0.62rem; }
+  .player-overlay .overlay-artist { font-size: 0.52rem; }
+  .player-overlay .overlay-btns button { width: 22px; height: 22px; font-size: 9px; }
+  .player-overlay .overlay-btns .btn-overlay-play { width: 26px; height: 26px; font-size: 11px; }
+  .player-overlay .overlay-vol-slider { width: 48px; }
+  .player-overlay .overlay-vol-btn { width: 16px; height: 16px; font-size: 7px; }
+
+  #playlistDropdown {
+    top: calc(75px + var(--safe-top));
+    left: calc(6px + var(--safe-left));
+    max-height: 220px;
+    width: 200px;
+  }
+
+  /* -- Time card: extra compact -- */
+  .time-card {
+    border-radius: 10px;
+    padding: 6px 8px 10px;
+    margin-bottom: 10px;
+  }
+  .time-card-left { height: 100px; }
+  .time-card-left .svg-frame { transform: scale(0.35); height: 110px; }
+  .time-card-right .clock-time { font-size: 0.95rem; }
+  .time-card-right .clock-date { font-size: 0.58rem; }
+  .time-card-right .clock-greeting { font-size: 0.55rem; }
+
+  /* -- Card: full-width compact -- */
+  .card {
+    padding: 14px 8px 18px;
+    margin-top: 8px;
+    border-radius: 14px;
+    width: 96%;
+  }
+  .greeting h1 { font-size: 1.3rem; margin-bottom: 10px; }
+  .greeting .subtitle { font-size: 0.82rem; }
+  .typewriter { font-size: 1rem; }
+  .typewriter-wrap { margin-bottom: 24px; }
+
+  /* -- Fortune box: compact -- */
+  .fortune-box {
+    border-radius: 10px;
+    padding: 8px 8px 12px;
+  }
+  .fortune-box-header h2 { font-size: 0.65rem; }
+  .fortune-slot-window { height: 30px; line-height: 30px; }
+  .fortune-slot-text { font-size: 0.72rem; }
+  .fortune-draw-btn { font-size: 0.65rem; padding: 7px; }
+  .fortune-result-row { font-size: 0.62rem; padding: 3px 0; }
+  .fortune-label { font-size: 0.6rem; }
+  .fortune-stars-display { font-size: 0.75rem; }
+
+  /* -- Social buttons: smaller -- */
+  .social-icon-btn { width: 28px; height: 28px; }
+  .social-icon-btn.settings-gear-btn { font-size: 0.95rem; }
+  .social-icon-btn svg { width: 15px; height: 15px; }
+
+  /* -- Settings: less padding -- */
+  .settings-card { padding: 20px 10px 16px; }
+  .settings-card h2 { font-size: 1rem; }
+  .settings-tab { font-size: 0.65rem; padding: 6px 0; }
+  .settings-btn { font-size: 0.65rem; padding: 6px 12px; }
+
+  /* -- Tea wheel: compact -- */
+  .tea-wheel-card { max-width: 94vw; padding: 10px 10px 12px; }
+  .tea-wheel-container { width: 150px; height: 150px; }
+  .tea-wheel-header h2 { font-size: 0.7rem; }
+
+  /* -- Loading overlay: tighter -- */
+  #loadingOverlay { bottom: 30px; }
+  #loadingText { font-size: 0.8rem; }
+  #swipeHint { bottom: 16px; font-size: 0.9rem; }
+
+  /* -- Overlay modals -- */
+  .settings-card { border-radius: 0; }
+  .instructions-card { padding: 32px 12px 24px; }
+  .instructions-card h2 { font-size: 1.1rem; }
+  .instructions-card ul li { font-size: 0.8rem; line-height: 1.6; }
+  .instructions-card .instructions-footer { font-size: 0.75rem; }
 }
