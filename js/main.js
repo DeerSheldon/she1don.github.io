@@ -61,12 +61,60 @@
   var SWIPE_DELAY   = 15000;       // 15 seconds forced viewing before swipe
   var countdownTimer = null;       // setTimeout id for delayed swipe unlock
   var instructionsVisible = false; // instructions panel is shown
+  var masterTimeout  = null;       // global force-proceed timeout (25s)
+  var skipBtn        = document.getElementById('loadingSkipBtn');
+  var MASTER_TIMEOUT = 25000;      // 25s global deadline — after this force proceed
 
   // Detect page reload — if user refreshes, skip straight to second page
   var isPageReload = false;
   try {
     isPageReload = (performance.getEntriesByType('navigation')[0] || {}).type === 'reload';
   } catch (e) {}
+  // Second-visit detection via sessionStorage (survives tab close but not browser restart)
+  var hasVisitedBefore = false;
+  try {
+    hasVisitedBefore = sessionStorage.getItem('bd_visited') === '1';
+    sessionStorage.setItem('bd_visited', '1');
+  } catch (e) {}
+
+  // ============================================================
+  //  FORCE PROCEED — global safety net
+  //  After MASTER_TIMEOUT, skip all loading gates and proceed
+  // ============================================================
+  function forceProceed() {
+    if (transitioned) return;
+    console.warn('⚠️ 全局超时触发 — 强制进入第二页');
+    // Mark everything ready
+    if (!videoLoaded) { videoLoaded = true; }
+    if (!video2Loaded) { video2Loaded = true; }
+    if (!audioLoaded) { audioLoaded = true; }
+    if (!playlistReady) { playlistReady = true; }
+    // Hide loading overlay
+    var timeoutHint = document.getElementById('loadingTimeoutHint');
+    if (timeoutHint) { timeoutHint.classList.remove('show'); }
+    loadingOverlay.classList.add('fadeout');
+    setTimeout(function () { loadingOverlay.style.display = 'none'; }, 600);
+    // Hide skip button
+    if (skipBtn) skipBtn.style.display = 'none';
+    // If not yet in playback mode, start what we can
+    if (!allReady) {
+      allReady = true;
+      readyTime = Date.now() - SWIPE_DELAY; // pretend 15s already passed
+      musicLoadingEl.style.display = 'none';
+      musicPlayerEl.style.display = 'flex';
+    }
+    // Commit transition
+    commitTransition();
+  }
+
+  // Skip button — shown after 12s, lets user skip the wait
+  if (skipBtn) {
+    skipBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (transitioned) return;
+      forceProceed();
+    });
+  }
 
   // ============================================================
   //  UTILS
@@ -446,6 +494,9 @@
     allReady = true;
     readyTime = Date.now();
 
+    // Clear master timeout if it was set
+    if (masterTimeout) { clearTimeout(masterTimeout); masterTimeout = null; }
+
     // Show player with full controls
     musicLoadingEl.style.display = 'none';
     musicPlayerEl.style.display = 'flex';
@@ -477,11 +528,27 @@
       updateLoadingText('加载完毕...');
     }
 
+    // Show skip button after 12s (in case swipe never works)
+    setTimeout(function () {
+      if (!transitioned && skipBtn) {
+        skipBtn.style.display = '';
+      }
+    }, 12000);
+
     // Arm 15-second countdown — when it fires, check if swipe can unlock
     countdownTimer = setTimeout(function () {
       countdownTimer = null;
       tryUnlockSwipe();
     }, SWIPE_DELAY);
+
+    // Global master timeout — after MASTER_TIMEOUT, force proceed no matter what
+    masterTimeout = setTimeout(function () {
+      masterTimeout = null;
+      if (!transitioned) {
+        console.warn('⚠️ 全局超时 (' + (MASTER_TIMEOUT/1000) + 's) — 强制进入');
+        forceProceed();
+      }
+    }, MASTER_TIMEOUT);
   }
 
   // ============================================================
@@ -562,9 +629,10 @@
 
   function init() {
     // ============================================================
-    //  RELOAD FAST-PATH — skip first page, go straight to second
+    //  RELOAD / SECOND-VISIT FAST-PATH
+    //  Skip first page entirely if: browser reload, or sessionStorage says visited
     // ============================================================
-    if (isPageReload) {
+    if (isPageReload || hasVisitedBefore) {
       // Set all state as ready
       videoLoaded = true;
       video2Loaded = true;
@@ -581,6 +649,13 @@
       if (videoFallback) { videoFallback.style.display = 'none'; videoFallback.classList.add('exited'); }
       swipeHint.style.display = 'none';
       musicLoadingEl.style.display = 'none';
+      if (skipBtn) skipBtn.style.display = 'none';
+      var timeoutHint = document.getElementById('loadingTimeoutHint');
+      if (timeoutHint) { timeoutHint.classList.remove('show'); }
+
+      // Clear any pending timers
+      if (masterTimeout) { clearTimeout(masterTimeout); masterTimeout = null; }
+      if (countdownTimer) { clearTimeout(countdownTimer); countdownTimer = null; }
 
       // Show second page immediately
       mainWrapper.classList.add('entered');
@@ -591,14 +666,19 @@
       musicPlayerEl.style.pointerEvents = '';
 
       // Set video sources — only need second page video
-      bgVideo2.src = 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4';
-      bgVideo2.play().catch(function () {});
-
-      // Ensure second background video loops
+      // Bind error handler BEFORE setting src
+      bgVideo2.addEventListener('error', function () {
+        if (video2Loaded) return;
+        if (video2RetryTimer) { clearTimeout(video2RetryTimer); video2RetryTimer = null; }
+        retryVideo2();
+      });
       bgVideo2.addEventListener('ended', function () {
         bgVideo2.currentTime = 0;
         bgVideo2.play().catch(function () {});
       });
+      bgVideo2.src = 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4';
+      bgVideo2.load();
+      bgVideo2.play().catch(function () {});
 
       // Fetch playlist + play music
       fetchPlaylist().then(function (data) {
@@ -616,7 +696,7 @@
         updateVolIcon(0.7);
         musicPlayerEl.style.display = 'flex';
         audioEl.play().then(function () { setPlaying(true); }).catch(function () {});
-        console.log('✅ 刷新后直接进入第二页，歌单：' + playlist.length + ' 首');
+        console.log('✅ 快速进入第二页，歌单：' + playlist.length + ' 首');
       }).catch(function (err) {
         console.error('❌ 歌单失败:', err);
         musicErrorEl.style.display = 'block';
@@ -632,14 +712,11 @@
     musicPlayerEl.style.display = 'none';
     loadingOverlay.style.display = 'block';
 
-    // Set video sources — local files
-    bgVideo.src = 'mv.mp4';
-    bgVideo2.src = 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4';
+    // ---- Bind event listeners BEFORE setting src (fix race condition) ----
 
-    // 1) Wait for first page video (mv.mp4) to load
+    // bgVideo (first page — mv.mp4) event listeners
     if (bgVideo.readyState >= 3) {
       videoLoaded = true;
-      tryStartPlayback();
     } else {
       bgVideo.addEventListener('canplaythrough', function () {
         if (!videoLoaded) {
@@ -647,32 +724,80 @@
           tryStartPlayback();
         }
       }, { once: true });
-      setTimeout(function () {
-        if (!videoLoaded) {
-          console.warn('第一页背景视频加载超时，继续');
-          videoLoaded = true;
-          tryStartPlayback();
-        }
-      }, 8000);
     }
 
-    // 1.5) Preload second video (Punklorde) — blocks swipe until ready
-    loadVideo2();
+    // bgVideo error fallback
+    bgVideo.addEventListener('error', function () {
+      console.warn('背景视频加载失败，显示渐变背景');
+      bgVideo.style.display = 'none';
+      videoFallback.style.zIndex = '0';
+    });
 
-    // Handle video2 load error — retry infinitely with console logging
+    // bgVideo2 (second page — Punklorde) event listeners
+    if (bgVideo2.readyState >= 3) {
+      onVideo2Ready();
+    } else {
+      bgVideo2.addEventListener('canplaythrough', function () {
+        onVideo2Ready();
+      }, { once: true });
+    }
     bgVideo2.addEventListener('error', function () {
       if (video2Loaded) return;
       if (video2RetryTimer) { clearTimeout(video2RetryTimer); video2RetryTimer = null; }
       retryVideo2();
     });
-
-    // Ensure second background video loops continuously
     bgVideo2.addEventListener('ended', function () {
       bgVideo2.currentTime = 0;
       bgVideo2.play().catch(function () {});
     });
 
-    // 2) Fetch playlist
+    // ---- Now set src (listeners are already bound) ----
+    bgVideo.src = 'mv.mp4';
+    bgVideo.load();
+    bgVideo2.src = 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4';
+    bgVideo2.load();
+
+    // ---- Timeouts for video loading ----
+    // Video1: 12s timeout (increased from 8s for slow connections)
+    setTimeout(function () {
+      if (!videoLoaded) {
+        console.warn('第一页背景视频加载超时，继续');
+        videoLoaded = true;
+        tryStartPlayback();
+      }
+    }, 12000);
+
+    // Video2: 25s forced timeout — if still not loaded, mark as done anyway
+    // This prevents permanently blocking the swipe gesture
+    setTimeout(function () {
+      if (!video2Loaded) {
+        console.warn('⚠️ 第二背景视频加载超时 (25s)，强制标记为已加载');
+        if (video2RetryTimer) { clearTimeout(video2RetryTimer); video2RetryTimer = null; }
+        onVideo2Ready(); // force it
+      }
+    }, 25000);
+
+    // ---- Global master timeout — absolute last resort ----
+    // If for any reason we're still not past the first page after 35s, force it
+    masterTimeout = setTimeout(function () {
+      masterTimeout = null;
+      if (!transitioned && !allReady) {
+        console.warn('⚠️ 初始化超时 (35s) — 强制启动');
+        videoLoaded = true;
+        video2Loaded = true;
+        audioLoaded = true;
+        playlistReady = true;
+        tryStartPlayback();
+        // Also force transition after a short delay
+        setTimeout(function () {
+          if (!transitioned) forceProceed();
+        }, 2000);
+      } else if (!transitioned) {
+        forceProceed();
+      }
+    }, 35000);
+
+    // ---- Fetch playlist ----
     fetchPlaylist().then(function (data) {
       playlist = data;
       currentIndex = 0;
@@ -687,41 +812,51 @@
       audioEl.load();
 
       // Wait for audio track to be fully buffered before allowing playback
-      // This ensures video (mv.mp4) and audio start in perfect sync
       if (audioEl.readyState >= 3) {
-        // Already buffered enough — ready immediately
         if (!audioLoaded) { audioLoaded = true; tryStartPlayback(); }
       } else {
         audioEl.addEventListener('canplaythrough', function () {
           if (!audioLoaded) { audioLoaded = true; tryStartPlayback(); }
         }, { once: true });
-        // Fallback: if audio takes too long, proceed anyway after 10s
+        // Fallback: if audio takes too long, proceed anyway after 12s
         setTimeout(function () {
           if (!audioLoaded) {
             console.warn('音频缓冲超时，继续');
             audioLoaded = true;
             tryStartPlayback();
           }
-        }, 10000);
+        }, 12000);
       }
 
       tryStartPlayback();
       console.log('✅ 歌单加载完成：' + playlist.length + ' 首');
     }).catch(function (err) {
       console.error('❌ 歌单失败:', err);
+      playlistReady = true; // mark ready so we can at least show the page
       musicLoadingEl.style.display = 'none';
       loadingOverlay.classList.add('fadeout');
       setTimeout(function () { loadingOverlay.style.display = 'none'; }, 600);
       musicErrorEl.style.display = 'block';
+      // Force swipe to work even without playlist
+      if (allReady || (videoLoaded && video2Loaded)) {
+        if (!allReady) { allReady = true; readyTime = Date.now() - SWIPE_DELAY; }
+        if (!transitioned) {
+          swipeHint.classList.add('show');
+          tryUnlockSwipe();
+        }
+      }
     });
 
-    // Show timeout hint after 20s if still loading
-    var timeoutHint = document.getElementById('loadingTimeoutHint');
+    // Show skip button and timeout hint after 12s
     setTimeout(function () {
-      if ((!allReady || !video2Loaded) && timeoutHint) {
+      if (!transitioned && skipBtn) {
+        skipBtn.style.display = '';
+      }
+      var timeoutHint = document.getElementById('loadingTimeoutHint');
+      if ((!allReady || !video2Loaded) && timeoutHint && !transitioned) {
         timeoutHint.classList.add('show');
       }
-    }, 20000);
+    }, 12000);
   }
 
   // ============================================================
@@ -730,6 +865,57 @@
   window.togglePlay    = togglePlay;
   window.nextTrack     = nextTrack;
   window.previousTrack = previousTrack;
+
+  // ============================================================
+  //  WHITE-SCREEN RECOVERY — periodically check & force repaint
+  //  Chrome has a known bug where backdrop-filter on video elements
+  //  can fail silently, rendering elements as opaque white (#FFFFFF).
+  //  This watchdog detects and recovers from that state.
+  // ============================================================
+  var recoveryCheckInterval = null;
+  var lastRecoveryAttempt = 0;
+  var RECOVERY_COOLDOWN = 10000;  // min 10s between recovery attempts
+
+  function startWhiteScreenWatchdog() {
+    if (recoveryCheckInterval) return;
+    recoveryCheckInterval = setInterval(function () {
+      if (!transitioned) return; // only check after entering second page
+
+      // Sample the card element — if backdrop-filter has failed,
+      // the card's computed background may appear solid white
+      var card = document.querySelector('.card');
+      if (!card || card.classList.contains('clear-screen-hidden')) return;
+
+      // Check if the card is visible and has opacity
+      var cardOpacity = parseFloat(getComputedStyle(card).opacity);
+      if (cardOpacity < 0.5) return; // card is hidden, skip
+
+      // Force a tiny layout shift to reset GPU compositor
+      // This is done by momentarily changing a CSS variable and restoring it
+      var now = Date.now();
+      if (now - lastRecoveryAttempt < RECOVERY_COOLDOWN) return;
+      lastRecoveryAttempt = now;
+
+      var root = document.documentElement;
+      var currentBlur = getComputedStyle(root).getPropertyValue('--glass-blur').trim();
+      // Toggle the blur value to force GPU re-compositing
+      root.style.setProperty('--glass-blur', '0px');
+      // Force layout recalculation
+      void root.offsetHeight;
+      // Restore after a frame
+      requestAnimationFrame(function () {
+        root.style.setProperty('--glass-blur', currentBlur || '3px');
+      });
+    }, 5000); // check every 5 seconds
+  }
+
+  // Start watchdog after entering second page
+  var origCommit = commitTransition;
+  commitTransition = function () {
+    origCommit();
+    // Delay watchdog start to let initial render settle
+    setTimeout(startWhiteScreenWatchdog, 3000);
+  };
 
   // ============================================================
   //  START
