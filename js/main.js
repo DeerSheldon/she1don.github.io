@@ -443,6 +443,15 @@
     // ALL three must be ready: video buffered, playlist fetched, audio track buffered
     if (!videoLoaded || !playlistReady || !audioLoaded) return;
     if (allReady) return;
+
+    // Double-check: the timeout may have set videoLoaded=true even though
+    // the video hasn't actually buffered enough data. Only proceed when
+    // the video is truly ready to play (HAVE_FUTURE_DATA or higher).
+    if (bgVideo && bgVideo.readyState < 3) {
+      console.warn('视频标记为已加载但实际未就绪 (readyState=' + bgVideo.readyState + ')，等待 canplaythrough...');
+      return;
+    }
+
     allReady = true;
     readyTime = Date.now();
 
@@ -637,23 +646,39 @@
     bgVideo2.src = 'Punklorde (Honkai Star Rail)-Desktop Resolution.mp4';
 
     // 1) Wait for first page video (mv.mp4) to load
+    //    videoLoaded is ONLY set by canplaythrough — timeout never lies about it.
+    //    This guarantees tryStartPlayback() only fires when the video has real data,
+    //    keeping video and audio in perfect sync.
     if (bgVideo.readyState >= 3) {
       videoLoaded = true;
       tryStartPlayback();
     } else {
       bgVideo.addEventListener('canplaythrough', function () {
-        if (!videoLoaded) {
-          videoLoaded = true;
-          tryStartPlayback();
-        }
+        // Always react to real load, even if timeout already fired
+        videoLoaded = true;
+        tryStartPlayback();
       }, { once: true });
+
+      // Timeout does NOT set videoLoaded — just updates loading text
+      // so the user knows what's happening
       setTimeout(function () {
         if (!videoLoaded) {
-          console.warn('第一页背景视频加载超时，继续');
-          videoLoaded = true;
-          tryStartPlayback();
+          console.warn('第一页背景视频加载较慢，请耐心等待...');
+          updateLoadingText('视频加载中，请耐心等待...');
         }
       }, 8000);
+
+      // Hard safety net: if video truly never loads after 30s,
+      // force-proceed without it (show fallback gradient)
+      setTimeout(function () {
+        if (!videoLoaded) {
+          console.warn('第一页背景视频加载超时 (30s)，强制继续');
+          videoLoaded = true;
+          if (bgVideo) { bgVideo.style.display = 'none'; }
+          if (videoFallback) { videoFallback.style.zIndex = '0'; }
+          tryStartPlayback();
+        }
+      }, 30000);
     }
 
     // 1.5) Preload second video (Punklorde) — blocks swipe until ready
